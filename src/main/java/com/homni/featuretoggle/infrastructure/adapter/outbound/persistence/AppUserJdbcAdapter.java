@@ -1,10 +1,12 @@
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
+import com.homni.featuretoggle.domain.exception.UserEmailAlreadyExistsException;
 import com.homni.featuretoggle.domain.model.AppUser;
 import com.homni.featuretoggle.domain.model.Email;
 import com.homni.featuretoggle.domain.model.Role;
 import com.homni.featuretoggle.domain.model.UserId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -30,25 +32,29 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
 
     @Override
     public void save(AppUser u) {
-        jdbc.sql("""
-                INSERT INTO app_user (id, oidc_subject, email, name, role, active, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (id) DO UPDATE
-                    SET oidc_subject = EXCLUDED.oidc_subject,
-                        name = EXCLUDED.name,
-                        role = EXCLUDED.role,
-                        active = EXCLUDED.active,
-                        updated_at = EXCLUDED.updated_at
-                """)
-                .param(u.id.value)
-                .param(u.oidcSubject())
-                .param(u.email.value())
-                .param(u.displayName())
-                .param(u.currentRole().name())
-                .param(u.isActive())
-                .param(Timestamp.from(u.createdAt))
-                .param(u.lastModifiedAt() != null ? Timestamp.from(u.lastModifiedAt()) : null)
-                .update();
+        try {
+            jdbc.sql("""
+                    INSERT INTO app_user (id, oidc_subject, email, name, role, active, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT (id) DO UPDATE
+                        SET oidc_subject = EXCLUDED.oidc_subject,
+                            name = EXCLUDED.name,
+                            role = EXCLUDED.role,
+                            active = EXCLUDED.active,
+                            updated_at = EXCLUDED.updated_at
+                    """)
+                    .param(u.id.value)
+                    .param(u.oidcSubject().orElse(null))
+                    .param(u.email.value())
+                    .param(u.displayName().orElse(null))
+                    .param(u.currentRole().name())
+                    .param(u.isActive())
+                    .param(Timestamp.from(u.createdAt))
+                    .param(u.lastModifiedAt().map(Timestamp::from).orElse(null))
+                    .update();
+        } catch (DuplicateKeyException e) {
+            throw new UserEmailAlreadyExistsException(u.email);
+        }
     }
 
     @Override

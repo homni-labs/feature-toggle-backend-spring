@@ -68,15 +68,15 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
 
     @Override
     public boolean isEnvironmentInUse(String name) {
-        long count = jdbc.sql("""
-                SELECT count(*) FROM toggle_environment te
-                JOIN environment e ON e.id = te.environment_id
-                WHERE e.name = ?
+        return jdbc.sql("""
+                SELECT EXISTS(
+                    SELECT 1 FROM toggle_environment te
+                    JOIN environment e ON e.id = te.environment_id
+                    WHERE e.name = ?)
                 """)
                 .param(name)
-                .query(Long.class)
+                .query(Boolean.class)
                 .single();
-        return count > 0;
     }
 
     private Environment mapRow(ResultSet rs, int rowNum) throws SQLException {

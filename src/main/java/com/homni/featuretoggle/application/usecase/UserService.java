@@ -2,6 +2,7 @@ package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.in.UserUseCase;
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
+import com.homni.featuretoggle.domain.exception.UserEmailAlreadyExistsException;
 import com.homni.featuretoggle.domain.exception.UserNotFoundException;
 import com.homni.featuretoggle.domain.model.AppUser;
 import com.homni.featuretoggle.domain.model.Role;
@@ -11,11 +12,20 @@ import com.homni.featuretoggle.domain.model.UserPage;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Orchestrates user management operations.
+ */
 public class UserService implements UserUseCase {
 
     private final AppUserRepositoryPort userRepository;
     private final String defaultAdminEmail;
 
+    /**
+     * Creates a user service.
+     *
+     * @param userRepository    the user persistence port
+     * @param defaultAdminEmail the email address of the default admin, may be blank
+     */
     public UserService(AppUserRepositoryPort userRepository, String defaultAdminEmail) {
         this.userRepository = userRepository;
         this.defaultAdminEmail = defaultAdminEmail;
@@ -23,23 +33,15 @@ public class UserService implements UserUseCase {
 
     @Override
     public AppUser findOrCreateByOidcSubject(String oidcSubject, String email, String name) {
-        Optional<AppUser> bySubject = userRepository.findByOidcSubject(oidcSubject);
-        if (bySubject.isPresent()) {
-            return bySubject.get();
+        try {
+            return userRepository.findByOidcSubject(oidcSubject)
+                    .or(() -> tryBindExistingUser(oidcSubject, email))
+                    .orElseGet(() -> createNewUser(oidcSubject, email, name));
+        } catch (UserEmailAlreadyExistsException e) {
+            return userRepository.findByOidcSubject(oidcSubject)
+                    .or(() -> userRepository.findByEmail(email))
+                    .orElseThrow(() -> e);
         }
-
-        Optional<AppUser> byEmail = userRepository.findByEmail(email);
-        if (byEmail.isPresent() && byEmail.get().canBindOidc()) {
-            AppUser user = byEmail.get();
-            user.bindOidcSubject(oidcSubject);
-            userRepository.save(user);
-            return user;
-        }
-
-        Role role = isDefaultAdmin(email) ? Role.ADMIN : Role.READER;
-        AppUser user = new AppUser(oidcSubject, email, name, role);
-        userRepository.save(user);
-        return user;
     }
 
     @Override
@@ -89,14 +91,7 @@ public class UserService implements UserUseCase {
     @Override
     public AppUser updateUser(UserId id, Role role, Boolean active) {
         AppUser user = findById(id);
-        if (role != null) {
-            user.changeRole(role);
-        }
-        if (active != null && active) {
-            user.activate();
-        } else if (active != null) {
-            user.disable();
-        }
+        user.applyPatch(role, active);
         userRepository.save(user);
         return user;
     }
@@ -105,6 +100,23 @@ public class UserService implements UserUseCase {
     public void delete(UserId id) {
         findById(id);
         userRepository.deleteById(id);
+    }
+
+    private Optional<AppUser> tryBindExistingUser(String oidcSubject, String email) {
+        return userRepository.findByEmail(email)
+                .filter(AppUser::canBindOidc)
+                .map(user -> {
+                    user.bindOidcSubject(oidcSubject);
+                    userRepository.save(user);
+                    return user;
+                });
+    }
+
+    private AppUser createNewUser(String oidcSubject, String email, String name) {
+        Role role = isDefaultAdmin(email) ? Role.ADMIN : Role.READER;
+        AppUser user = new AppUser(oidcSubject, email, name, role);
+        userRepository.save(user);
+        return user;
     }
 
     private boolean isDefaultAdmin(String email) {

@@ -16,6 +16,8 @@ spring:
 app:
   oidc:
     default-admin-email: ${OIDC_ADMIN_EMAIL:admin@homni.local}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
 
 springdoc:
   swagger-ui:

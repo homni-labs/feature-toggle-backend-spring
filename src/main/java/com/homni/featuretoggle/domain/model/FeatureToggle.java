@@ -8,6 +8,7 @@ import com.homni.featuretoggle.domain.exception.ToggleAlreadyEnabledException;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 public final class FeatureToggle {
@@ -58,7 +59,7 @@ public final class FeatureToggle {
         this.name = validateName(name);
         this.description = description;
         this.enabled = enabled;
-        this.environments = new LinkedHashSet<>(environments != null ? environments : Set.of());
+        this.environments = validateEnvironments(name, environments);
         this.createdAt = Objects.requireNonNull(createdAt);
         this.updatedAt = updatedAt;
     }
@@ -102,6 +103,9 @@ public final class FeatureToggle {
      * @param newEnvironments the new set of environment names, or {@code null} to keep current
      */
     public void update(String newName, String newDescription, Set<String> newEnvironments) {
+        if (newName == null && newDescription == null && newEnvironments == null) {
+            return;
+        }
         if (newName != null) {
             this.name = validateName(newName);
         }
@@ -109,9 +113,9 @@ public final class FeatureToggle {
             this.description = newDescription;
         }
         if (newEnvironments != null) {
-            validateEnvironments(this.name, newEnvironments);
+            LinkedHashSet<String> validated = validateEnvironments(this.name, newEnvironments);
             this.environments.clear();
-            this.environments.addAll(newEnvironments);
+            this.environments.addAll(validated);
         }
         this.updatedAt = Instant.now();
     }
@@ -128,10 +132,10 @@ public final class FeatureToggle {
     /**
      * Returns the toggle description text.
      *
-     * @return the description, may be {@code null}
+     * @return the description, or empty if not set
      */
-    public String description() {
-        return this.description;
+    public Optional<String> description() {
+        return Optional.ofNullable(this.description);
     }
 
     /**
@@ -155,10 +159,10 @@ public final class FeatureToggle {
     /**
      * Returns the instant when this toggle was last modified.
      *
-     * @return the last modification timestamp, may be {@code null}
+     * @return the last modification timestamp, or empty if never modified
      */
-    public Instant lastModifiedAt() {
-        return this.updatedAt;
+    public Optional<Instant> lastModifiedAt() {
+        return Optional.ofNullable(this.updatedAt);
     }
 
     private LinkedHashSet<String> validateEnvironments(String toggleName,

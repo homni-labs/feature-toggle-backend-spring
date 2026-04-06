@@ -23,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -37,15 +38,18 @@ public class SecurityConfig {
     private final SecurityErrorHandler securityErrorHandler;
     private final UserUseCase userUseCase;
     private final String issuerUri;
+    private final String allowedOrigins;
 
     SecurityConfig(ApiKeyAuthFilter apiKeyAuthFilter,
                    SecurityErrorHandler securityErrorHandler,
                    UserUseCase userUseCase,
-                   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri) {
+                   @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri,
+                   @Value("${app.cors.allowed-origins:http://localhost:3000}") String allowedOrigins) {
         this.apiKeyAuthFilter = apiKeyAuthFilter;
         this.securityErrorHandler = securityErrorHandler;
         this.userUseCase = userUseCase;
         this.issuerUri = issuerUri;
+        this.allowedOrigins = allowedOrigins;
     }
 
     @Bean
@@ -53,42 +57,52 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/docs", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/environments/**").hasAnyRole("ADMIN", "EDITOR")
-                        .requestMatchers("/api-keys/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
-                        .requestMatchers("/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/toggles", "/toggles/**").hasAnyRole("ADMIN", "EDITOR", "READER")
-                        .requestMatchers(HttpMethod.POST, "/toggles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
-                        .requestMatchers(HttpMethod.PATCH, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
-                        .requestMatchers(HttpMethod.DELETE, "/toggles/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(securityErrorHandler)
-                        .accessDeniedHandler(securityErrorHandler)
-                )
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(this::configureAuthorization)
+                .exceptionHandling(this::configureExceptionHandling)
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        configureOauth2(http);
+        return http.build();
+    }
 
+    private void configureAuthorization(
+            org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+        auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/docs", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/environments/**").hasAnyRole("ADMIN", "EDITOR")
+                .requestMatchers("/api-keys/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
+                .requestMatchers("/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/toggles", "/toggles/**").hasAnyRole("ADMIN", "EDITOR", "READER")
+                .requestMatchers(HttpMethod.POST, "/toggles").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
+                .requestMatchers(HttpMethod.PATCH, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
+                .requestMatchers(HttpMethod.DELETE, "/toggles/**").hasRole("ADMIN")
+                .anyRequest().authenticated();
+    }
+
+    private void configureExceptionHandling(
+            org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer<HttpSecurity> ex) {
+        ex.authenticationEntryPoint(securityErrorHandler).accessDeniedHandler(securityErrorHandler);
+    }
+
+    private void configureOauth2(HttpSecurity http) throws Exception {
         if (issuerUri != null && !issuerUri.isBlank()) {
             http.oauth2ResourceServer(oauth2 -> oauth2
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             );
         }
-
-        return http.build();
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
+        Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .forEach(config::addAllowedOriginPattern);
+        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-API-Key"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

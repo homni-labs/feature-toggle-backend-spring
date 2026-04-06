@@ -1,7 +1,12 @@
 package com.homni.featuretoggle.domain.model;
 
+import com.homni.featuretoggle.domain.exception.OidcSubjectAlreadyBoundException;
+import com.homni.featuretoggle.domain.exception.UserAlreadyActivatedException;
+import com.homni.featuretoggle.domain.exception.UserAlreadyDisabledException;
+
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class AppUser {
 
@@ -83,8 +88,12 @@ public final class AppUser {
      * Binds an OIDC subject identifier to this user.
      *
      * @param oidcSubject the OIDC subject to bind
+     * @throws OidcSubjectAlreadyBoundException if an OIDC subject is already bound
      */
     public void bindOidcSubject(String oidcSubject) {
+        if (this.oidcSubject != null) {
+            throw new OidcSubjectAlreadyBoundException(this.id, this.email);
+        }
         this.oidcSubject = Objects.requireNonNull(oidcSubject);
         this.updatedAt = Instant.now();
     }
@@ -101,36 +110,66 @@ public final class AppUser {
 
     /**
      * Disables this user, preventing authentication.
+     *
+     * @throws UserAlreadyDisabledException if the user is already disabled
      */
     public void disable() {
+        if (!this.active) {
+            throw new UserAlreadyDisabledException(this.id, this.email);
+        }
         this.active = false;
         this.updatedAt = Instant.now();
     }
 
     /**
      * Activates this user, allowing authentication.
+     *
+     * @throws UserAlreadyActivatedException if the user is already active
      */
     public void activate() {
+        if (this.active) {
+            throw new UserAlreadyActivatedException(this.id, this.email);
+        }
         this.active = true;
         this.updatedAt = Instant.now();
     }
 
     /**
+     * Applies a partial update to this user.
+     * Each parameter may be {@code null} to skip that field.
+     * State transitions (active/inactive) are only applied when the target
+     * differs from the current state.
+     *
+     * @param newRole   the new role, or {@code null} to keep current
+     * @param newActive the new active status, or {@code null} to keep current
+     */
+    public void applyPatch(Role newRole, Boolean newActive) {
+        if (newRole != null) {
+            changeRole(newRole);
+        }
+        if (Boolean.TRUE.equals(newActive) && !this.active) {
+            activate();
+        } else if (Boolean.FALSE.equals(newActive) && this.active) {
+            disable();
+        }
+    }
+
+    /**
      * Returns the OIDC subject identifier, if bound.
      *
-     * @return the OIDC subject, may be {@code null}
+     * @return the OIDC subject, or empty if not yet bound
      */
-    public String oidcSubject() {
-        return this.oidcSubject;
+    public Optional<String> oidcSubject() {
+        return Optional.ofNullable(this.oidcSubject);
     }
 
     /**
      * Returns the display name of this user.
      *
-     * @return the user's name, may be {@code null}
+     * @return the user's name, or empty if not set
      */
-    public String displayName() {
-        return this.name;
+    public Optional<String> displayName() {
+        return Optional.ofNullable(this.name);
     }
 
     /**
@@ -154,10 +193,10 @@ public final class AppUser {
     /**
      * Returns the instant when this user was last modified.
      *
-     * @return the last modification timestamp, may be {@code null}
+     * @return the last modification timestamp, or empty if never modified
      */
-    public Instant lastModifiedAt() {
-        return this.updatedAt;
+    public Optional<Instant> lastModifiedAt() {
+        return Optional.ofNullable(this.updatedAt);
     }
 
     /**

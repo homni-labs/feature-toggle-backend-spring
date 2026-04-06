@@ -11,10 +11,18 @@ import com.homni.featuretoggle.domain.model.IssuedApiKey;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Orchestrates API key management operations.
+ */
 public class ApiKeyService implements ApiKeyUseCase {
 
     private final ApiKeyRepositoryPort apiKeyRepository;
 
+    /**
+     * Creates an API key service.
+     *
+     * @param apiKeyRepository the API key persistence port
+     */
     public ApiKeyService(ApiKeyRepositoryPort apiKeyRepository) {
         this.apiKeyRepository = apiKeyRepository;
     }

@@ -97,10 +97,10 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
                     """)
                     .param(t.id.value)
                     .param(t.name())
-                    .param(t.description())
+                    .param(t.description().orElse(null))
                     .param(t.isEnabled())
                     .param(Timestamp.from(t.createdAt))
-                    .param(t.lastModifiedAt() != null ? Timestamp.from(t.lastModifiedAt()) : null)
+                    .param(t.lastModifiedAt().map(Timestamp::from).orElse(null))
                     .update();
         } catch (DuplicateKeyException e) {
             throw new ToggleAlreadyExistsException(t.name());

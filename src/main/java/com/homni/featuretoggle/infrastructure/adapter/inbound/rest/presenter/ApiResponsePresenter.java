@@ -17,10 +17,24 @@ import java.util.List;
 @Component
 public class ApiResponsePresenter {
 
+    /**
+     * Presents a single feature toggle as API response.
+     *
+     * @param toggle the domain toggle
+     * @return the API response DTO
+     */
     public FeatureToggleSingleResponse toggle(com.homni.featuretoggle.domain.model.FeatureToggle toggle) {
         return new FeatureToggleSingleResponse(toToggleDto(toggle), meta());
     }
 
+    /**
+     * Presents a page of feature toggles as API response.
+     *
+     * @param page     the domain page
+     * @param pageNum  the zero-based page number
+     * @param pageSize the page size
+     * @return the API response DTO
+     */
     public FeatureToggleListResponse togglePage(TogglePage page, int pageNum, int pageSize) {
         List<FeatureToggle> items = page.items().stream().map(this::toToggleDto).toList();
 
@@ -31,6 +45,14 @@ public class ApiResponsePresenter {
         return response;
     }
 
+    /**
+     * Presents a page of API keys as API response.
+     *
+     * @param page     the domain page
+     * @param pageNum  the zero-based page number
+     * @param pageSize the page size
+     * @return the API response DTO
+     */
     public ApiKeyListResponse apiKeyPage(ApiKeyPage page, int pageNum, int pageSize) {
         List<ApiKey> items = page.items().stream().map(this::toApiKeyDto).toList();
 
@@ -41,6 +63,12 @@ public class ApiResponsePresenter {
         return response;
     }
 
+    /**
+     * Presents a newly issued API key as API response, including the raw token.
+     *
+     * @param issued the issued API key with raw token
+     * @return the API response DTO
+     */
     public ApiKeyCreatedSingleResponse apiKeyCreated(IssuedApiKey issued) {
         com.homni.featuretoggle.domain.model.ApiKey key = issued.apiKey;
         ApiKeyCreated dto = new ApiKeyCreated()
@@ -52,10 +80,24 @@ public class ApiResponsePresenter {
         return new ApiKeyCreatedSingleResponse(dto, meta());
     }
 
+    /**
+     * Presents a single user as API response.
+     *
+     * @param user the domain user
+     * @return the API response DTO
+     */
     public UserSingleResponse user(AppUser user) {
         return new UserSingleResponse(toUserDto(user), meta());
     }
 
+    /**
+     * Presents a page of users as API response.
+     *
+     * @param page     the domain page
+     * @param pageNum  the zero-based page number
+     * @param pageSize the page size
+     * @return the API response DTO
+     */
     public UserListResponse userPage(UserPage page, int pageNum, int pageSize) {
         List<User> items = page.items().stream().map(this::toUserDto).toList();
 
@@ -103,11 +145,11 @@ public class ApiResponsePresenter {
         return new FeatureToggle()
                 .id(t.id.value)
                 .name(t.name())
-                .description(t.description())
+                .description(t.description().orElse(null))
                 .enabled(t.isEnabled())
                 .environments(envs)
                 .createdAt(toUtc(t.createdAt))
-                .updatedAt(toUtc(t.lastModifiedAt()));
+                .updatedAt(t.lastModifiedAt().map(this::toUtc).orElse(null));
     }
 
     private ApiKey toApiKeyDto(com.homni.featuretoggle.domain.model.ApiKey k) {
@@ -123,13 +165,13 @@ public class ApiResponsePresenter {
     private User toUserDto(AppUser u) {
         return new User()
                 .id(u.id.value)
-                .oidcSubject(u.oidcSubject())
+                .oidcSubject(u.oidcSubject().orElse(null))
                 .email(u.email.value())
-                .name(u.displayName())
+                .name(u.displayName().orElse(null))
                 .role(User.RoleEnum.fromValue(u.currentRole().name()))
                 .active(u.isActive())
                 .createdAt(toUtc(u.createdAt))
-                .updatedAt(toUtc(u.lastModifiedAt()));
+                .updatedAt(u.lastModifiedAt().map(this::toUtc).orElse(null));
     }
 
     private Pagination buildPagination(long totalElements, int pageNum, int pageSize) {
