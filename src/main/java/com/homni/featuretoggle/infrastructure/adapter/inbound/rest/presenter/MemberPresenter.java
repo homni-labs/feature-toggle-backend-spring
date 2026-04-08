@@ -63,6 +63,10 @@ public class MemberPresenter {
                         toUtc(m.grantedAt));
         m.lastModifiedAt().ifPresent(t ->
                 dto.setUpdatedAt(JsonNullable.of(toUtc(t))));
+        m.email().ifPresent(e ->
+                dto.setEmail(JsonNullable.of(e)));
+        m.displayName().ifPresent(n ->
+                dto.setName(JsonNullable.of(n)));
         return dto;
     }
 

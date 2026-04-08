@@ -1095,6 +1095,12 @@ components:
         role:
           type: string
           enum: [ADMIN, EDITOR, READER]
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
         grantedAt:
           type: string
           format: date-time
