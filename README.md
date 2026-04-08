@@ -1,3 +1,4 @@
+<div align="center">
 <img src="assets/feature_toggle_logo.jpeg" width="600" alt="Feature Toggle Logo">
 
 # Homni Feature Toggle Backend
@@ -8,6 +9,8 @@
 
 > Self-hosted feature toggle platform with per-project RBAC, multi-environment control, and API key authentication.
 
+**[Russian documentation](README_RU.md)**
+</div>
 ---
 
 ## Why Homni?
