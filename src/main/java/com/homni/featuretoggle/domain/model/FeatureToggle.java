@@ -1,9 +1,7 @@
 package com.homni.featuretoggle.domain.model;
 
-import com.homni.featuretoggle.domain.exception.EmptyEnvironmentsException;
-import com.homni.featuretoggle.domain.exception.InvalidToggleNameException;
-import com.homni.featuretoggle.domain.exception.ToggleAlreadyDisabledException;
-import com.homni.featuretoggle.domain.exception.ToggleAlreadyEnabledException;
+import com.homni.featuretoggle.domain.exception.DomainValidationException;
+import com.homni.featuretoggle.domain.exception.InvalidStateException;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -11,9 +9,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Feature toggle scoped to a project, assigned to one or more environments.
+ */
 public final class FeatureToggle {
 
     public final FeatureToggleId id;
+    public final ProjectId projectId;
     public final Instant createdAt;
 
     private String name;
@@ -23,16 +25,19 @@ public final class FeatureToggle {
     private final Set<String> environments;
 
     /**
-     * Creates a new feature toggle in a disabled state.
+     * Creates a new feature toggle in a disabled state within a project.
      *
+     * @param projectId    the owning project
      * @param name         the toggle name (1-255 non-blank characters)
      * @param description  the human-readable description, may be {@code null}
      * @param environments the initial set of environment names, must not be empty
-     * @throws InvalidToggleNameException if the name is invalid
-     * @throws EmptyEnvironmentsException if environments is empty
+     * @throws DomainValidationException if the name is invalid
+     * @throws DomainValidationException if environments is empty
      */
-    public FeatureToggle(String name, String description, Set<String> environments) {
+    public FeatureToggle(ProjectId projectId, String name, String description,
+                         Set<String> environments) {
         this.id = new FeatureToggleId();
+        this.projectId = Objects.requireNonNull(projectId);
         this.name = validateName(name);
         this.description = description;
         this.enabled = false;
@@ -45,6 +50,7 @@ public final class FeatureToggle {
      * Restores a feature toggle from persistent storage.
      *
      * @param id           the toggle identity
+     * @param projectId    the owning project
      * @param name         the toggle name
      * @param description  the toggle description, may be {@code null}
      * @param enabled      whether the toggle is enabled
@@ -52,10 +58,11 @@ public final class FeatureToggle {
      * @param createdAt    the creation timestamp
      * @param updatedAt    the last modification timestamp, may be {@code null}
      */
-    public FeatureToggle(FeatureToggleId id, String name, String description,
-                         boolean enabled, Set<String> environments,
+    public FeatureToggle(FeatureToggleId id, ProjectId projectId, String name,
+                         String description, boolean enabled, Set<String> environments,
                          Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id);
+        this.projectId = Objects.requireNonNull(projectId);
         this.name = validateName(name);
         this.description = description;
         this.enabled = enabled;
@@ -68,11 +75,11 @@ public final class FeatureToggle {
      * Enables this feature toggle and records the modification time.
      *
      * @return this toggle for chaining
-     * @throws ToggleAlreadyEnabledException if the toggle is already enabled
+     * @throws InvalidStateException if the toggle is already enabled
      */
     public FeatureToggle enable() {
         if (this.enabled) {
-            throw new ToggleAlreadyEnabledException(this.id, this.name);
+            throw new InvalidStateException("Toggle [id=%s, name=%s] is already enabled".formatted(this.id.value, this.name));
         }
         this.enabled = true;
         this.updatedAt = Instant.now();
@@ -83,11 +90,11 @@ public final class FeatureToggle {
      * Disables this feature toggle and records the modification time.
      *
      * @return this toggle for chaining
-     * @throws ToggleAlreadyDisabledException if the toggle is already disabled
+     * @throws InvalidStateException if the toggle is already disabled
      */
     public FeatureToggle disable() {
         if (!this.enabled) {
-            throw new ToggleAlreadyDisabledException(this.id, this.name);
+            throw new InvalidStateException("Toggle [id=%s, name=%s] is already disabled".formatted(this.id.value, this.name));
         }
         this.enabled = false;
         this.updatedAt = Instant.now();
@@ -168,14 +175,14 @@ public final class FeatureToggle {
     private LinkedHashSet<String> validateEnvironments(String toggleName,
                                                        Set<String> environments) {
         if (environments == null || environments.isEmpty()) {
-            throw new EmptyEnvironmentsException(toggleName);
+            throw new DomainValidationException("Toggle '%s' must have at least one environment".formatted(toggleName));
         }
         return new LinkedHashSet<>(environments);
     }
 
     private String validateName(String name) {
         if (name == null || name.isBlank() || name.length() > 255) {
-            throw new InvalidToggleNameException(String.valueOf(name));
+            throw new DomainValidationException("Invalid toggle name: " + name);
         }
         return name;
     }

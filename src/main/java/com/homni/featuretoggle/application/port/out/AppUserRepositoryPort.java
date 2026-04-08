@@ -18,6 +18,8 @@ public interface AppUserRepositoryPort {
 
     List<AppUser> findAll(int offset, int limit);
 
+    List<AppUser> search(String query, int limit);
+
     long count();
 
     void deleteById(UserId id);

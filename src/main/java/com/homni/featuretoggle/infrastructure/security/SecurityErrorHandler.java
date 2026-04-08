@@ -2,7 +2,7 @@ package com.homni.featuretoggle.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.homni.generated.model.ErrorResponse;
-import com.homni.generated.model.ErrorResponseAllOfPayload;
+import com.homni.generated.model.ErrorResponsePayload;
 import com.homni.generated.model.ResponseMeta;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -62,7 +62,7 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
 
     private void writeError(HttpServletResponse response, int status,
                             String code, String message) throws IOException {
-        ErrorResponseAllOfPayload payload = new ErrorResponseAllOfPayload(code, message);
+        ErrorResponsePayload payload = new ErrorResponsePayload(code, message);
         ErrorResponse body = new ErrorResponse(payload, new ResponseMeta().timestamp(OffsetDateTime.now()));
 
         response.setStatus(status);

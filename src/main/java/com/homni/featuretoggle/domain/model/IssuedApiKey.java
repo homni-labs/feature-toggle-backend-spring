@@ -18,16 +18,18 @@ public final class IssuedApiKey {
     public final String rawToken;
 
     /**
-     * Issues a new API key with a securely generated token.
+     * Issues a new read-only API key bound to a project with a securely generated token.
+     * API keys always grant READER role (read-only access).
      *
+     * @param projectId the owning project
      * @param name      the key name (1-255 non-blank characters)
      * @param expiresAt the expiration timestamp, may be {@code null} for no expiration
-     * @throws com.homni.featuretoggle.domain.exception.InvalidApiKeyNameException if the name is invalid
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the name is invalid
      */
-    public IssuedApiKey(String name, Instant expiresAt) {
+    public IssuedApiKey(ProjectId projectId, String name, Instant expiresAt) {
         this.rawToken = generateToken();
         TokenHash tokenHash = TokenHash.from(this.rawToken);
-        this.apiKey = new ApiKey(name, tokenHash, expiresAt);
+        this.apiKey = new ApiKey(projectId, name, ProjectRole.READER, tokenHash, expiresAt);
     }
 
     private String generateToken() {

@@ -3,6 +3,8 @@ package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
 import com.homni.featuretoggle.domain.model.ApiKey;
 import com.homni.featuretoggle.domain.model.ApiKeyId;
+import com.homni.featuretoggle.domain.model.ProjectId;
+import com.homni.featuretoggle.domain.model.ProjectRole;
 import com.homni.featuretoggle.domain.model.TokenHash;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -18,7 +20,8 @@ import java.util.UUID;
 @Repository
 public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
 
-    private static final String COLUMNS = "id, name, token_hash, active, created_at, expires_at";
+    private static final String COLUMNS =
+            "id, project_id, project_role, name, token_hash, active, created_at, expires_at";
 
     private final JdbcClient jdbc;
 
@@ -30,13 +33,15 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
     public void save(ApiKey k) {
         Timestamp expiresAt = k.expiresAt != null ? Timestamp.from(k.expiresAt) : null;
         jdbc.sql("""
-                INSERT INTO api_key (id, name, token_hash, active, created_at, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO api_key (id, project_id, project_role, name, token_hash, active, created_at, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE
                     SET active = EXCLUDED.active,
                         expires_at = EXCLUDED.expires_at
                 """)
                 .param(k.id.value)
+                .param(k.projectId.value)
+                .param(k.projectRole.name())
                 .param(k.name)
                 .param(k.tokenHash.value)
                 .param(k.isActive())
@@ -62,8 +67,10 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
     }
 
     @Override
-    public List<ApiKey> findAll(int offset, int limit) {
-        return jdbc.sql("SELECT " + COLUMNS + " FROM api_key ORDER BY created_at DESC LIMIT ? OFFSET ?")
+    public List<ApiKey> findAllByProject(ProjectId projectId, int offset, int limit) {
+        return jdbc.sql("SELECT " + COLUMNS
+                + " FROM api_key WHERE project_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?")
+                .param(projectId.value)
                 .param(limit)
                 .param(offset)
                 .query(this::mapRow)
@@ -71,8 +78,9 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
     }
 
     @Override
-    public long count() {
-        return jdbc.sql("SELECT count(*) FROM api_key")
+    public long countByProject(ProjectId projectId) {
+        return jdbc.sql("SELECT count(*) FROM api_key WHERE project_id = ?")
+                .param(projectId.value)
                 .query(Long.class)
                 .single();
     }
@@ -87,7 +95,9 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
     private ApiKey mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new ApiKey(
                 new ApiKeyId(rs.getObject("id", UUID.class)),
+                new ProjectId(rs.getObject("project_id", UUID.class)),
                 rs.getString("name"),
+                ProjectRole.valueOf(rs.getString("project_role")),
                 new TokenHash(rs.getString("token_hash")),
                 rs.getBoolean("active"),
                 rs.getTimestamp("created_at").toInstant(),

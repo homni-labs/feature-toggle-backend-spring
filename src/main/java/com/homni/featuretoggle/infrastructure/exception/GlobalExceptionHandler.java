@@ -1,11 +1,11 @@
 package com.homni.featuretoggle.infrastructure.exception;
 
+import com.homni.featuretoggle.domain.exception.DomainAccessDeniedException;
 import com.homni.featuretoggle.domain.exception.DomainConflictException;
 import com.homni.featuretoggle.domain.exception.DomainNotFoundException;
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
-import com.homni.featuretoggle.domain.exception.EmptyEnvironmentsException;
 import com.homni.generated.model.ErrorResponse;
-import com.homni.generated.model.ErrorResponseAllOfPayload;
+import com.homni.generated.model.ErrorResponsePayload;
 import com.homni.generated.model.ResponseMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,13 @@ public class GlobalExceptionHandler {
 
     // -- Domain exceptions ---------------------------------------------------
 
+    @ExceptionHandler(DomainAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccessDenied(DomainAccessDeniedException e) {
+        log.warn("Access denied: {}", e.getMessage());
+        return error("FORBIDDEN", e.getMessage());
+    }
+
     @ExceptionHandler(DomainNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(DomainNotFoundException e) {
@@ -40,13 +47,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleConflict(DomainConflictException e) {
         log.warn("Conflict: {}", e.getMessage());
         return error("CONFLICT", e.getMessage());
-    }
-
-    @ExceptionHandler(EmptyEnvironmentsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleEmptyEnvironments(EmptyEnvironmentsException e) {
-        log.warn("Empty environments: {}", e.getMessage());
-        return error("BAD_REQUEST", e.getMessage());
     }
 
     @ExceptionHandler(DomainValidationException.class)
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
     }
 
     private ErrorResponse error(String code, String message, String details) {
-        ErrorResponseAllOfPayload payload = new ErrorResponseAllOfPayload(code, message);
+        ErrorResponsePayload payload = new ErrorResponsePayload(code, message);
         payload.setDetails(details);
         return new ErrorResponse(payload, new ResponseMeta().timestamp(OffsetDateTime.now()));
     }

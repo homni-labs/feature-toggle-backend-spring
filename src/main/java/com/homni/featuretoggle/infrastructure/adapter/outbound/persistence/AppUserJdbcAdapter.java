@@ -1,10 +1,10 @@
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
-import com.homni.featuretoggle.domain.exception.UserEmailAlreadyExistsException;
+import com.homni.featuretoggle.domain.exception.AlreadyExistsException;
 import com.homni.featuretoggle.domain.model.AppUser;
 import com.homni.featuretoggle.domain.model.Email;
-import com.homni.featuretoggle.domain.model.Role;
+import com.homni.featuretoggle.domain.model.PlatformRole;
 import com.homni.featuretoggle.domain.model.UserId;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public class AppUserJdbcAdapter implements AppUserRepositoryPort {
 
     private static final String COLUMNS =
-            "id, oidc_subject, email, name, role, active, created_at, updated_at";
+            "id, oidc_subject, email, name, platform_role, active, created_at, updated_at";
 
     private final JdbcClient jdbc;
 
@@ -34,12 +34,12 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
     public void save(AppUser u) {
         try {
             jdbc.sql("""
-                    INSERT INTO app_user (id, oidc_subject, email, name, role, active, created_at, updated_at)
+                    INSERT INTO app_user (id, oidc_subject, email, name, platform_role, active, created_at, updated_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT (id) DO UPDATE
                         SET oidc_subject = EXCLUDED.oidc_subject,
                             name = EXCLUDED.name,
-                            role = EXCLUDED.role,
+                            platform_role = EXCLUDED.platform_role,
                             active = EXCLUDED.active,
                             updated_at = EXCLUDED.updated_at
                     """)
@@ -47,13 +47,13 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                     .param(u.oidcSubject().orElse(null))
                     .param(u.email.value())
                     .param(u.displayName().orElse(null))
-                    .param(u.currentRole().name())
+                    .param(u.platformRole().name())
                     .param(u.isActive())
                     .param(Timestamp.from(u.createdAt))
                     .param(u.lastModifiedAt().map(Timestamp::from).orElse(null))
                     .update();
         } catch (DuplicateKeyException e) {
-            throw new UserEmailAlreadyExistsException(u.email);
+            throw new AlreadyExistsException("User", u.email.value());
         }
     }
 
@@ -91,6 +91,18 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
     }
 
     @Override
+    public List<AppUser> search(String query, int limit) {
+        String pattern = "%" + query.toLowerCase() + "%";
+        return jdbc.sql("SELECT " + COLUMNS
+                + " FROM app_user WHERE LOWER(email) LIKE ? OR LOWER(name) LIKE ? ORDER BY email LIMIT ?")
+                .param(pattern)
+                .param(pattern)
+                .param(limit)
+                .query(this::mapRow)
+                .list();
+    }
+
+    @Override
     public long count() {
         return jdbc.sql("SELECT count(*) FROM app_user")
                 .query(Long.class)
@@ -110,7 +122,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 rs.getString("oidc_subject"),
                 new Email(rs.getString("email")),
                 rs.getString("name"),
-                Role.valueOf(rs.getString("role")),
+                PlatformRole.valueOf(rs.getString("platform_role")),
                 rs.getBoolean("active"),
                 rs.getTimestamp("created_at").toInstant(),
                 toInstantOrNull(rs, "updated_at")

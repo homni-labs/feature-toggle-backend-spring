@@ -1,0 +1,102 @@
+package com.homni.featuretoggle.application.usecase;
+
+import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
+import com.homni.featuretoggle.application.port.out.EnvironmentRepositoryPort;
+import com.homni.featuretoggle.application.port.out.FeatureToggleRepositoryPort;
+import com.homni.featuretoggle.application.port.out.ProjectRepositoryPort;
+import com.homni.featuretoggle.domain.exception.EntityNotFoundException;
+import com.homni.featuretoggle.domain.exception.ProjectArchivedException;
+import com.homni.featuretoggle.domain.model.FeatureToggle;
+import com.homni.featuretoggle.domain.model.FeatureToggleId;
+import com.homni.featuretoggle.domain.model.Permission;
+import com.homni.featuretoggle.domain.model.Project;
+import com.homni.featuretoggle.domain.model.ProjectId;
+
+import java.util.Set;
+
+/**
+ * Updates a feature toggle's mutable fields within a project.
+ */
+public final class UpdateToggleUseCase {
+
+    private final FeatureToggleRepositoryPort toggles;
+    private final EnvironmentRepositoryPort environments;
+    private final ProjectRepositoryPort projects;
+    private final CallerProjectAccessPort callerAccess;
+
+    /**
+     * Creates an update-toggle use case.
+     *
+     * @param toggles      the toggle persistence port
+     * @param environments the environment persistence port
+     * @param projects     the project persistence port
+     * @param callerAccess resolves the caller's project access
+     */
+    public UpdateToggleUseCase(FeatureToggleRepositoryPort toggles,
+                               EnvironmentRepositoryPort environments,
+                               ProjectRepositoryPort projects,
+                               CallerProjectAccessPort callerAccess) {
+        this.toggles = toggles;
+        this.environments = environments;
+        this.projects = projects;
+        this.callerAccess = callerAccess;
+    }
+
+    /**
+     * Updates the specified feature toggle including enable/disable.
+     *
+     * @param id               the toggle identity
+     * @param name             the new name, or {@code null} to keep current
+     * @param description      the new description, or {@code null} to keep current
+     * @param environmentNames the new environment names, or {@code null} to keep current
+     * @param enabled          the new enabled status, or {@code null} to keep current
+     * @return the updated feature toggle
+     * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks WRITE_TOGGLES
+     * @throws ProjectArchivedException if the owning project is archived
+     * @throws EntityNotFoundException if the toggle does not exist
+     * @throws EntityNotFoundException if any environment name does not exist in the project
+     *
+     * <pre>{@code
+     * FeatureToggle updated = updateToggle.execute(toggleId, null, null, null, true);
+     * }</pre>
+     */
+    public FeatureToggle execute(FeatureToggleId id, String name, String description,
+                                 Set<String> environmentNames, Boolean enabled) {
+        FeatureToggle toggle = toggles.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Toggle", id.value));
+        callerAccess.resolve(toggle.projectId).ensure(Permission.WRITE_TOGGLES);
+        ensureProjectNotArchived(toggle.projectId);
+        if (environmentNames != null) {
+            validateEnvironmentsExist(toggle.projectId, environmentNames);
+        }
+        toggle.update(name, description, environmentNames);
+        applyEnabledChange(toggle, enabled);
+        toggles.save(toggle);
+        return toggle;
+    }
+
+    private void applyEnabledChange(FeatureToggle toggle, Boolean enabled) {
+        if (Boolean.TRUE.equals(enabled) && !toggle.isEnabled()) {
+            toggle.enable();
+        } else if (Boolean.FALSE.equals(enabled) && toggle.isEnabled()) {
+            toggle.disable();
+        }
+    }
+
+    private void ensureProjectNotArchived(ProjectId projectId) {
+        Project project = projects.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project", projectId.value));
+        if (project.isArchived()) {
+            throw new ProjectArchivedException(projectId);
+        }
+    }
+
+    private void validateEnvironmentsExist(ProjectId projectId, Set<String> requested) {
+        Set<String> existing = environments.findNamesByProjectId(projectId);
+        for (String envName : requested) {
+            if (!existing.contains(envName)) {
+                throw new EntityNotFoundException("Environment", envName + " in project " + projectId.value);
+            }
+        }
+    }
+}

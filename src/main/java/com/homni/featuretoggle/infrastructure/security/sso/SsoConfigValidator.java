@@ -1,7 +1,7 @@
 package com.homni.featuretoggle.infrastructure.security.sso;
 
 import com.homni.featuretoggle.domain.model.AppUser;
-import com.homni.featuretoggle.domain.model.Role;
+import com.homni.featuretoggle.domain.model.PlatformRole;
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class SsoConfigValidator implements ApplicationRunner {
             log.info("Default admin already exists: {}", email);
             return;
         }
-        AppUser admin = new AppUser(email, "Admin", Role.ADMIN);
+        AppUser admin = new AppUser(email, "Admin", PlatformRole.PLATFORM_ADMIN);
         userRepository.save(admin);
         log.info("Default admin created (pending OIDC binding): {}", email);
     }

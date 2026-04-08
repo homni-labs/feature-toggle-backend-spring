@@ -7,7 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -16,6 +15,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Authenticates requests carrying an {@code X-API-Key} header.
+ * Creates an {@link ApiKeyAuthentication} with the key's project and role.
+ */
 @Component
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
@@ -38,12 +41,12 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             ApiKey apiKey = apiKeyRepository.findByTokenHash(hash).orElse(null);
 
             if (apiKey != null && apiKey.isValid()) {
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                ApiKeyAuthentication auth = new ApiKeyAuthentication(
+                        apiKey.projectId,
+                        apiKey.projectRole,
                         "apikey:" + apiKey.name,
-
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_EDITOR"))
-                );
+                        List.of(new SimpleGrantedAuthority(
+                                "ROLE_" + apiKey.projectRole.name())));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

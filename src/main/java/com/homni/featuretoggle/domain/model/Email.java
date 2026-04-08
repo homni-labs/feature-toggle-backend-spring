@@ -1,6 +1,6 @@
 package com.homni.featuretoggle.domain.model;
 
-import com.homni.featuretoggle.domain.exception.InvalidEmailException;
+import com.homni.featuretoggle.domain.exception.DomainValidationException;
 
 /**
  * Email address value object with format validation.
@@ -17,7 +17,7 @@ public record Email(String value) {
     public Email {
         if (value == null || value.isBlank()
                 || !value.matches("^[\\w.+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new InvalidEmailException(String.valueOf(value));
+            throw new DomainValidationException("Invalid email: " + value);
         }
         value = value.toLowerCase().trim();
     }

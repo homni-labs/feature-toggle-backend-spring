@@ -1,11 +1,12 @@
 package com.homni.featuretoggle.infrastructure.security;
 
-import com.homni.featuretoggle.application.port.in.UserUseCase;
+import com.homni.featuretoggle.application.usecase.FindOrCreateUserUseCase;
 import com.homni.featuretoggle.domain.model.AppUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,7 +14,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -23,11 +23,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.core.convert.converter.Converter;
+
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * Spring Security configuration for the feature toggle platform.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -36,22 +39,29 @@ public class SecurityConfig {
 
     private final ApiKeyAuthFilter apiKeyAuthFilter;
     private final SecurityErrorHandler securityErrorHandler;
-    private final UserUseCase userUseCase;
+    private final FindOrCreateUserUseCase findOrCreateUser;
     private final String issuerUri;
     private final String allowedOrigins;
 
     SecurityConfig(ApiKeyAuthFilter apiKeyAuthFilter,
                    SecurityErrorHandler securityErrorHandler,
-                   UserUseCase userUseCase,
+                   FindOrCreateUserUseCase findOrCreateUser,
                    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:}") String issuerUri,
                    @Value("${app.cors.allowed-origins:http://localhost:3000}") String allowedOrigins) {
         this.apiKeyAuthFilter = apiKeyAuthFilter;
         this.securityErrorHandler = securityErrorHandler;
-        this.userUseCase = userUseCase;
+        this.findOrCreateUser = findOrCreateUser;
         this.issuerUri = issuerUri;
         this.allowedOrigins = allowedOrigins;
     }
 
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http the HTTP security builder
+     * @return the configured filter chain
+     * @throws Exception if configuration fails
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -71,15 +81,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/docs", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/environments/**").hasAnyRole("ADMIN", "EDITOR")
-                .requestMatchers("/api-keys/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
-                .requestMatchers("/users/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/toggles", "/toggles/**").hasAnyRole("ADMIN", "EDITOR", "READER")
-                .requestMatchers(HttpMethod.POST, "/toggles").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
-                .requestMatchers(HttpMethod.PATCH, "/toggles/**").hasAnyRole("ADMIN", "EDITOR")
-                .requestMatchers(HttpMethod.DELETE, "/toggles/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/users/search").authenticated()
+                .requestMatchers("/users/**").hasRole("PLATFORM_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/projects").hasRole("PLATFORM_ADMIN")
                 .anyRequest().authenticated();
     }
 
@@ -101,7 +106,7 @@ public class SecurityConfig {
         Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
                 .forEach(config::addAllowedOriginPattern);
-        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS", "PUT", "PATCH"));
         config.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-API-Key"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -109,36 +114,34 @@ public class SecurityConfig {
         return source;
     }
 
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(this::extractAuthorities);
-        return converter;
-    }
+    private Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        return jwt -> {
+            String subject = jwt.getSubject();
+            if (subject == null) {
+                log.warn("JWT missing 'sub' claim");
+                throw new org.springframework.security.access.AccessDeniedException("Missing sub claim");
+            }
 
-    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-        String subject = jwt.getSubject();
-        if (subject == null) {
-            log.warn("JWT missing 'sub' claim, ensure 'openid' scope is assigned to the client");
-            return Collections.emptyList();
-        }
+            String email = jwt.getClaimAsString("email");
+            if (email == null) {
+                log.warn("JWT missing 'email' claim for sub={}", subject);
+                throw new org.springframework.security.access.AccessDeniedException("Missing email claim");
+            }
 
-        String email = jwt.getClaimAsString("email");
-        if (email == null) {
-            log.warn("JWT missing 'email' claim for sub={}, ensure 'email' scope is assigned to the client", subject);
-            return Collections.emptyList();
-        }
+            String name = jwt.getClaimAsString("name");
+            if (name == null) {
+                name = jwt.getClaimAsString("preferred_username");
+            }
 
-        String name = jwt.getClaimAsString("name");
-        if (name == null) {
-            name = jwt.getClaimAsString("preferred_username");
-        }
+            AppUser user = findOrCreateUser.execute(subject, email, name);
 
-        AppUser user = userUseCase.findOrCreateByOidcSubject(subject, email, name);
+            if (!user.canAuthenticate()) {
+                throw new org.springframework.security.access.AccessDeniedException("User is disabled");
+            }
 
-        if (!user.canAuthenticate()) {
-            return Collections.emptyList();
-        }
-
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.currentRole().name()));
+            List<GrantedAuthority> authorities =
+                    List.of(new SimpleGrantedAuthority("ROLE_" + user.platformRole().name()));
+            return new AppUserAuthentication(user, subject, authorities);
+        };
     }
 }

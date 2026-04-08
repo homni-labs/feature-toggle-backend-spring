@@ -3,7 +3,8 @@ package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 import com.homni.featuretoggle.application.port.out.FeatureToggleRepositoryPort;
 import com.homni.featuretoggle.domain.model.FeatureToggle;
 import com.homni.featuretoggle.domain.model.FeatureToggleId;
-import com.homni.featuretoggle.domain.exception.ToggleAlreadyExistsException;
+import com.homni.featuretoggle.domain.model.ProjectId;
+import com.homni.featuretoggle.domain.exception.AlreadyExistsException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -22,11 +23,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * JDBC adapter for persisting {@link FeatureToggle} aggregates scoped to a project.
+ */
 @Repository
 public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
 
     private static final String SELECT_WITH_ENVS = """
-            SELECT ft.id, ft.name, ft.description, ft.enabled, ft.created_at, ft.updated_at,
+            SELECT ft.id, ft.project_id, ft.name, ft.description, ft.enabled, ft.created_at, ft.updated_at,
                    (SELECT COALESCE(array_agg(e.name ORDER BY e.name), '{}')
                     FROM toggle_environment te
                     JOIN environment e ON e.id = te.environment_id
@@ -39,6 +43,15 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
         this.jdbc = jdbc;
     }
 
+    /**
+     * Saves a feature toggle using upsert, then syncs its environment associations.
+     *
+     * @param t the toggle to save
+     *
+     * <pre>{@code
+     * toggles.save(newToggle);
+     * }</pre>
+     */
     @Override
     @Transactional
     public void save(FeatureToggle t) {
@@ -46,6 +59,16 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
         syncEnvironments(t);
     }
 
+    /**
+     * Finds a feature toggle by its identity.
+     *
+     * @param id the toggle identity
+     * @return the toggle if found, or empty
+     *
+     * <pre>{@code
+     * Optional<FeatureToggle> toggle = toggles.findById(toggleId);
+     * }</pre>
+     */
     @Override
     public Optional<FeatureToggle> findById(FeatureToggleId id) {
         return jdbc.sql(SELECT_WITH_ENVS + " WHERE ft.id = ?")
@@ -54,10 +77,24 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
                 .optional();
     }
 
+    /**
+     * Lists feature toggles belonging to a project with optional filtering and pagination.
+     *
+     * @param projectId   the owning project identity
+     * @param enabled     filter by enabled status, or {@code null} for all
+     * @param environment filter by environment name, or {@code null} for all
+     * @param offset      the number of rows to skip
+     * @param limit       the maximum number of rows to return
+     * @return the matching toggles
+     *
+     * <pre>{@code
+     * List<FeatureToggle> page = toggles.findAllByProject(projectId, true, "PRODUCTION", 0, 20);
+     * }</pre>
+     */
     @Override
-    public List<FeatureToggle> findAll(Boolean enabled, String environment,
-                                       int offset, int limit) {
-        WhereClause where = buildWhere(enabled, environment);
+    public List<FeatureToggle> findAllByProject(ProjectId projectId, Boolean enabled,
+                                                 String environment, int offset, int limit) {
+        WhereClause where = buildWhere(projectId, enabled, environment);
         JdbcClient.StatementSpec spec = jdbc.sql(
                 SELECT_WITH_ENVS + where.sql + " ORDER BY ft.name LIMIT ? OFFSET ?");
         for (Object param : where.params) {
@@ -66,9 +103,21 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
         return spec.param(limit).param(offset).query(this::mapRow).list();
     }
 
+    /**
+     * Counts feature toggles belonging to a project matching the given filters.
+     *
+     * @param projectId   the owning project identity
+     * @param enabled     filter by enabled status, or {@code null} for all
+     * @param environment filter by environment name, or {@code null} for all
+     * @return the count of matching toggles
+     *
+     * <pre>{@code
+     * long total = toggles.countByProject(projectId, null, null);
+     * }</pre>
+     */
     @Override
-    public long count(Boolean enabled, String environment) {
-        WhereClause where = buildWhere(enabled, environment);
+    public long countByProject(ProjectId projectId, Boolean enabled, String environment) {
+        WhereClause where = buildWhere(projectId, enabled, environment);
         JdbcClient.StatementSpec spec = jdbc.sql(
                 "SELECT count(*) FROM feature_toggle ft" + where.sql);
         for (Object param : where.params) {
@@ -77,6 +126,15 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
         return spec.query(Long.class).single();
     }
 
+    /**
+     * Deletes a feature toggle by its identity.
+     *
+     * @param id the toggle identity
+     *
+     * <pre>{@code
+     * toggles.deleteById(toggleId);
+     * }</pre>
+     */
     @Override
     public void deleteById(FeatureToggleId id) {
         jdbc.sql("DELETE FROM feature_toggle WHERE id = ?")
@@ -87,8 +145,8 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     private void upsertToggle(FeatureToggle t) {
         try {
             jdbc.sql("""
-                    INSERT INTO feature_toggle (id, name, description, enabled, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO feature_toggle (id, project_id, name, description, enabled, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT (id) DO UPDATE
                         SET name = EXCLUDED.name,
                             description = EXCLUDED.description,
@@ -96,6 +154,7 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
                             updated_at = EXCLUDED.updated_at
                     """)
                     .param(t.id.value)
+                    .param(t.projectId.value)
                     .param(t.name())
                     .param(t.description().orElse(null))
                     .param(t.isEnabled())
@@ -103,7 +162,7 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
                     .param(t.lastModifiedAt().map(Timestamp::from).orElse(null))
                     .update();
         } catch (DuplicateKeyException e) {
-            throw new ToggleAlreadyExistsException(t.name());
+            throw new AlreadyExistsException("Toggle", t.name());
         }
     }
 
@@ -121,16 +180,16 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
                 .update();
     }
 
-    private WhereClause buildWhere(Boolean enabled, String environment) {
-        StringBuilder sql = new StringBuilder();
+    private WhereClause buildWhere(ProjectId projectId, Boolean enabled, String environment) {
+        StringBuilder sql = new StringBuilder(" WHERE ft.project_id = ?");
         List<Object> params = new ArrayList<>();
+        params.add(projectId.value);
         if (enabled != null) {
-            sql.append(" WHERE ft.enabled = ?");
+            sql.append(" AND ft.enabled = ?");
             params.add(enabled);
         }
         if (environment != null) {
-            sql.append(params.isEmpty() ? " WHERE " : " AND ");
-            sql.append("ft.id IN (SELECT te.toggle_id FROM toggle_environment te "
+            sql.append(" AND ft.id IN (SELECT te.toggle_id FROM toggle_environment te "
                     + "JOIN environment e ON e.id = te.environment_id WHERE e.name = ?)");
             params.add(environment);
         }
@@ -142,6 +201,7 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     private FeatureToggle mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new FeatureToggle(
                 new FeatureToggleId(rs.getObject("id", UUID.class)),
+                new ProjectId(rs.getObject("project_id", UUID.class)),
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getBoolean("enabled"),

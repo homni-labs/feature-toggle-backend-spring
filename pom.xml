@@ -97,6 +97,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.homni.featuretoggle.FeatureToggleApplication</mainClass>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.openapitools</groupId>
@@ -114,9 +117,9 @@
                             <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true</openapiNormalizer>
                             <apiPackage>com.homni.generated.api</apiPackage>
                             <modelPackage>com.homni.generated.model</modelPackage>
-                            <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
+                                <useTags>true</useTags>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <generateConstructorWithAllArgs>true</generateConstructorWithAllArgs>
                                 <openApiNullable>true</openApiNullable>
