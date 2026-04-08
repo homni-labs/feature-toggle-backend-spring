@@ -34,6 +34,8 @@
 
 Запускает PostgreSQL + Keycloak + приложение. Swagger UI доступен по адресу [localhost:8080/docs](http://localhost:8080/docs).
 
+> В директории [`keycloak/`](keycloak/) находится пример конфигурации realm ([`feature-toggle-realm.json`](keycloak/feature-toggle-realm.json)) и кастомная тема логина ([`themes/`](keycloak/themes/)).
+
 ### Docker Hub
 
 ```bash

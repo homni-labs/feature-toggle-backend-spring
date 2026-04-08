@@ -36,6 +36,8 @@ Most feature toggle solutions are either SaaS-only or lack proper access control
 
 Starts PostgreSQL + Keycloak + App. Open Swagger UI at [localhost:8080/docs](http://localhost:8080/docs).
 
+> The [`keycloak/`](keycloak/) directory contains a sample realm config ([`feature-toggle-realm.json`](keycloak/feature-toggle-realm.json)) and a custom login theme ([`themes/`](keycloak/themes/)).
+
 ### Docker Hub
 
 ```bash
