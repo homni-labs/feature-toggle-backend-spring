@@ -46,7 +46,15 @@ public class ProjectPresenter {
      */
     public ProjectListResponse list(List<ProjectWithRole> projects) {
         List<com.homni.generated.model.Project> items = projects.stream()
-                .map(pwr -> toDto(pwr.project()))
+                .map(pwr -> {
+                    var dto = toDto(pwr.project());
+                    if (pwr.myRole() != null) {
+                        dto.setMyRole(JsonNullable.of(
+                                com.homni.generated.model.Project.MyRoleEnum.fromValue(
+                                        pwr.myRole().name())));
+                    }
+                    return dto;
+                })
                 .toList();
         return new ProjectListResponse(items, meta());
     }

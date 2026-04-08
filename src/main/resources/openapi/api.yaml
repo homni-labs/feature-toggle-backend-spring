@@ -821,6 +821,10 @@ components:
         createdAt:
           type: string
           format: date-time
+        myRole:
+          type: string
+          enum: [ADMIN, EDITOR, READER]
+          nullable: true
         updatedAt:
           type: string
           format: date-time
