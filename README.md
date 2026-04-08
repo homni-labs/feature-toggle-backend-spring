@@ -10,8 +10,8 @@
 > Self-hosted feature toggle platform with per-project RBAC, multi-environment control, and API key authentication.
 
 **[Russian documentation](README_RU.md)**
-</div>
 ---
+</div>
 
 ## Why Homni?
 

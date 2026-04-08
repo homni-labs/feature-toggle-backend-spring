@@ -8,8 +8,8 @@
 [![Pre-release](https://img.shields.io/github/v/release/homni-labs/feature-toggle-backend-spring?include_prereleases&label=pre-release)](https://github.com/homni-labs/feature-toggle-backend-spring/releases)
 
 > Self-hosted платформа для управления feature-тоглами с RBAC на уровне проектов, мульти-средами и аутентификацией по API-ключам.
-</div>
 ---
+</div>
 
 ## Почему Homni?
 
