@@ -3,7 +3,7 @@
 # Homni Feature Toggle Backend
 
 [![Build](https://github.com/homni-labs/feature-toggle-backend-spring/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/homni-labs/feature-toggle-backend-spring/actions/workflows/docker-publish.yml)
-[![Release](https://img.shields.io/github/v/release/homni-labs/feature-toggle-backend-spring)](https://github.com/homni-labs/feature-toggle-backend-spring/releases/latest)
+[![GitHub Release](https://img.shields.io/github/v/release/homni-labs/feature-toggle-backend-spring)](https://github.com/homni-labs/feature-toggle-backend-spring/releases)
 [![Pre-release](https://img.shields.io/github/v/release/homni-labs/feature-toggle-backend-spring?include_prereleases&label=pre-release)](https://github.com/homni-labs/feature-toggle-backend-spring/releases)
 
 > Self-hosted feature toggle platform with per-project RBAC, multi-environment control, and API key authentication.
