@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
@@ -18,6 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * JDBC adapter for persisting {@link AppUser} aggregates.
+ */
 @Repository
 public class AppUserJdbcAdapter implements AppUserRepositoryPort {
 
@@ -30,6 +42,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
         this.jdbc = jdbc;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void save(AppUser u) {
         try {
@@ -57,6 +70,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<AppUser> findById(UserId id) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM app_user WHERE id = ?")
@@ -65,6 +79,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<AppUser> findByOidcSubject(String oidcSubject) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM app_user WHERE oidc_subject = ?")
@@ -73,6 +88,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<AppUser> findByEmail(String email) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM app_user WHERE email = ?")
@@ -81,6 +97,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<AppUser> findAll(int offset, int limit) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM app_user ORDER BY email LIMIT ? OFFSET ?")
@@ -90,6 +107,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .list();
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<AppUser> search(String query, int limit) {
         String pattern = "%" + query.toLowerCase() + "%";
@@ -102,6 +120,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .list();
     }
 
+    /** {@inheritDoc} */
     @Override
     public long count() {
         return jdbc.sql("SELECT count(*) FROM app_user")
@@ -109,6 +128,7 @@ public class AppUserJdbcAdapter implements AppUserRepositoryPort {
                 .single();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void deleteById(UserId id) {
         jdbc.sql("DELETE FROM app_user WHERE id = ?")

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.ProjectRepositoryPort;
@@ -36,14 +45,10 @@ public class ProjectJdbcAdapter implements ProjectRepositoryPort {
     }
 
     /**
-     * Saves a project using upsert (insert or update on conflict).
+     * Saves a project via upsert.
      *
      * @param project the project to save
-     * @throws AlreadyExistsException if the project key already exists
-     *
-     * <pre>{@code
-     * projects.save(newProject);
-     * }</pre>
+     * @throws AlreadyExistsException if the project slug already exists
      */
     @Override
     public void save(Project project) {
@@ -71,14 +76,10 @@ public class ProjectJdbcAdapter implements ProjectRepositoryPort {
     }
 
     /**
-     * Finds a project by its identity.
+     * Finds a project by identity.
      *
      * @param id the project identity
-     * @return the project if found, or empty
-     *
-     * <pre>{@code
-     * Optional<Project> project = projects.findById(projectId);
-     * }</pre>
+     * @return the project, or empty
      */
     @Override
     public Optional<Project> findById(ProjectId id) {
@@ -89,13 +90,9 @@ public class ProjectJdbcAdapter implements ProjectRepositoryPort {
     }
 
     /**
-     * Returns all projects ordered by name (no pagination, admin use).
+     * Returns all projects ordered by name.
      *
      * @return all projects
-     *
-     * <pre>{@code
-     * List<Project> all = projects.findAll();
-     * }</pre>
      */
     @Override
     public List<Project> findAll() {
@@ -105,14 +102,10 @@ public class ProjectJdbcAdapter implements ProjectRepositoryPort {
     }
 
     /**
-     * Returns all non-archived projects where the given user is a member.
+     * Returns non-archived projects the user belongs to.
      *
      * @param userId the user identity
-     * @return the projects the user belongs to
-     *
-     * <pre>{@code
-     * List<Project> myProjects = projects.findByMember(currentUserId);
-     * }</pre>
+     * @return the user's projects
      */
     @Override
     public List<Project> findByMember(UserId userId) {
@@ -129,15 +122,10 @@ public class ProjectJdbcAdapter implements ProjectRepositoryPort {
     }
 
     /**
-     * Returns all non-archived projects where the given user is a member,
-     * including the user's role in each project.
+     * Returns non-archived projects with the user's role.
      *
      * @param userId the user identity
-     * @return the projects with the user's role
-     *
-     * <pre>{@code
-     * List<ProjectWithRole> myProjects = projects.findByMemberWithRole(currentUserId);
-     * }</pre>
+     * @return the projects with role
      */
     @Override
     public List<ProjectWithRole> findByMemberWithRole(UserId userId) {

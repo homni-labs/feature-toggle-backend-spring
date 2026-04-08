@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
@@ -24,14 +33,14 @@ public final class ApiKey {
     private boolean active;
 
     /**
-     * Creates a new API key bound to a project with a specific role.
+     * Creates a new active API key for a project.
      *
      * @param projectId   the owning project
-     * @param name        the key name (1-255 non-blank characters)
-     * @param projectRole the role this key grants within the project
-     * @param tokenHash   the SHA-256 hash of the token
-     * @param expiresAt   the expiration timestamp, may be {@code null} for no expiration
-     * @throws DomainValidationException if the name is invalid
+     * @param name        key name (1-255 chars)
+     * @param projectRole the granted role
+     * @param tokenHash   SHA-256 hash of the token
+     * @param expiresAt   expiration, or {@code null}
+     * @throws DomainValidationException if name is invalid
      */
     public ApiKey(ProjectId projectId, String name, ProjectRole projectRole,
                   TokenHash tokenHash, Instant expiresAt) {
@@ -46,16 +55,17 @@ public final class ApiKey {
     }
 
     /**
-     * Restores an existing API key from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id          the API key identity
      * @param projectId   the owning project
      * @param name        the key name
-     * @param projectRole the role this key grants
-     * @param tokenHash   the SHA-256 hash of the token
-     * @param active      whether the key is active
-     * @param createdAt   the creation timestamp
-     * @param expiresAt   the expiration timestamp, may be {@code null}
+     * @param projectRole the granted role
+     * @param tokenHash   SHA-256 hash of the token
+     * @param active      active flag
+     * @param createdAt   creation timestamp
+     * @param expiresAt   expiration, or {@code null}
+     * @throws DomainValidationException if name is invalid
      */
     public ApiKey(ApiKeyId id, ProjectId projectId, String name, ProjectRole projectRole,
                   TokenHash tokenHash, boolean active, Instant createdAt, Instant expiresAt) {
@@ -70,9 +80,9 @@ public final class ApiKey {
     }
 
     /**
-     * Revokes this API key, making it inactive.
+     * Revokes this API key.
      *
-     * @throws InvalidStateException if the key is already revoked
+     * @throws InvalidStateException if already revoked
      */
     public void revoke() {
         if (!this.active) {
@@ -82,25 +92,25 @@ public final class ApiKey {
     }
 
     /**
-     * Checks whether this key is valid (active and not expired).
+     * Whether the key is active and not expired.
      *
-     * @return {@code true} if the key is active and has not expired
+     * @return {@code true} if valid
      */
     public boolean isValid() {
         return active && (expiresAt == null || Instant.now().isBefore(expiresAt));
     }
 
     /**
-     * Indicates whether this API key is currently active (not revoked).
+     * Whether this key is active (not revoked).
      *
-     * @return {@code true} if the key is active
+     * @return {@code true} if active
      */
     public boolean isActive() {
         return this.active;
     }
 
     /**
-     * Returns a masked representation of the token for safe display.
+     * Masked token representation for safe display.
      *
      * @return the masked token string
      */

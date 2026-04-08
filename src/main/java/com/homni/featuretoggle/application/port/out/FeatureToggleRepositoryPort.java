@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.port.out;
 
 import com.homni.featuretoggle.domain.model.FeatureToggle;
@@ -9,12 +18,6 @@ import java.util.Optional;
 
 /**
  * Output port for persisting feature toggles scoped to a project.
- *
- * <pre>{@code
- * FeatureToggle toggle = toggles.findById(toggleId).orElseThrow();
- * toggle.enable();
- * toggles.save(toggle);
- * }</pre>
  */
 public interface FeatureToggleRepositoryPort {
 
@@ -22,64 +25,44 @@ public interface FeatureToggleRepositoryPort {
      * Saves a feature toggle (insert or update).
      *
      * @param toggle the toggle to save
-     *
-     * <pre>{@code
-     * toggles.save(newToggle);
-     * }</pre>
      */
     void save(FeatureToggle toggle);
 
     /**
-     * Finds a feature toggle by its identity.
+     * Finds a feature toggle by identity.
      *
-     * @param id the toggle identity
+     * @param id toggle identity
      * @return the toggle if found, or empty
-     *
-     * <pre>{@code
-     * Optional<FeatureToggle> toggle = toggles.findById(toggleId);
-     * }</pre>
      */
     Optional<FeatureToggle> findById(FeatureToggleId id);
 
     /**
-     * Lists feature toggles belonging to a project with optional filtering and pagination.
+     * Lists toggles for a project with filtering and pagination.
      *
-     * @param projectId   the owning project identity
-     * @param enabled     filter by enabled status, or {@code null} for all
-     * @param environment filter by environment name, or {@code null} for all
-     * @param offset      the number of rows to skip
-     * @param limit       the maximum number of rows to return
+     * @param projectId   owning project identity
+     * @param enabled     enabled filter, or {@code null}
+     * @param environment environment filter, or {@code null}
+     * @param offset      rows to skip
+     * @param limit       max rows to return
      * @return the matching toggles
-     *
-     * <pre>{@code
-     * List<FeatureToggle> page = toggles.findAllByProject(projectId, true, "production", 0, 20);
-     * }</pre>
      */
     List<FeatureToggle> findAllByProject(ProjectId projectId, Boolean enabled, String environment,
                                          int offset, int limit);
 
     /**
-     * Counts feature toggles belonging to a project matching the given filters.
+     * Counts toggles matching the given filters.
      *
-     * @param projectId   the owning project identity
-     * @param enabled     filter by enabled status, or {@code null} for all
-     * @param environment filter by environment name, or {@code null} for all
-     * @return the count of matching toggles
-     *
-     * <pre>{@code
-     * long total = toggles.countByProject(projectId, null, null);
-     * }</pre>
+     * @param projectId   owning project identity
+     * @param enabled     enabled filter, or {@code null}
+     * @param environment environment filter, or {@code null}
+     * @return the matching count
      */
     long countByProject(ProjectId projectId, Boolean enabled, String environment);
 
     /**
-     * Deletes a feature toggle by its identity.
+     * Deletes a feature toggle by identity.
      *
-     * @param id the toggle identity
-     *
-     * <pre>{@code
-     * toggles.deleteById(toggleId);
-     * }</pre>
+     * @param id toggle identity
      */
     void deleteById(FeatureToggleId id);
 }

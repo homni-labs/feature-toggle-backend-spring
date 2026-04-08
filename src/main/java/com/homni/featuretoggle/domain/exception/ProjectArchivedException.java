@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 import com.homni.featuretoggle.domain.model.ProjectId;
@@ -8,7 +17,9 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 public final class ProjectArchivedException extends DomainConflictException {
 
     /**
-     * @param id the identity of the archived project
+     * Creates exception for modification of an archived project.
+     *
+     * @param id the archived project identity
      */
     public ProjectArchivedException(ProjectId id) {
         super("Project [id=%s] is archived and cannot be modified".formatted(id.value));

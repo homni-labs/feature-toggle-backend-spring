@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -20,11 +29,9 @@ public final class RemoveMemberUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a remove-member use case.
-     *
-     * @param memberships  the membership persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param memberships  membership persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public RemoveMemberUseCase(ProjectMembershipRepositoryPort memberships,
                                ProjectRepositoryPort projects,
@@ -35,16 +42,13 @@ public final class RemoveMemberUseCase {
     }
 
     /**
-     * Removes a user from the specified project.
+     * Removes a user from a project.
      *
-     * @param projectId the project identity
-     * @param userId    the user identity to remove
+     * @param projectId project identity
+     * @param userId    user identity to remove
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
      * @throws ProjectArchivedException if the project is archived
-     *
-     * <pre>{@code
-     * removeMember.execute(projectId, userId);
-     * }</pre>
+     * @throws EntityNotFoundException if the project does not exist
      */
     public void execute(ProjectId projectId, UserId userId) {
         callerAccess.resolve(projectId).ensure(Permission.MANAGE_MEMBERS);

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.ProjectMembershipRepositoryPort;
@@ -35,14 +44,10 @@ public class ProjectMembershipJdbcAdapter implements ProjectMembershipRepository
     }
 
     /**
-     * Saves a project membership (insert or update on conflict).
+     * Saves a membership via upsert.
      *
      * @param membership the membership to save
-     * @throws AlreadyExistsException if the user is already a member of the project
-     *
-     * <pre>{@code
-     * memberships.save(newMembership);
-     * }</pre>
+     * @throws AlreadyExistsException if already a member
      */
     @Override
     public void save(ProjectMembership membership) {
@@ -67,15 +72,11 @@ public class ProjectMembershipJdbcAdapter implements ProjectMembershipRepository
     }
 
     /**
-     * Finds a membership by project and user combination.
+     * Finds a membership by project and user.
      *
      * @param projectId the project identity
      * @param userId    the user identity
-     * @return the membership if found, or empty
-     *
-     * <pre>{@code
-     * Optional<ProjectMembership> m = memberships.findByProjectAndUser(projectId, userId);
-     * }</pre>
+     * @return the membership, or empty
      */
     @Override
     public Optional<ProjectMembership> findByProjectAndUser(ProjectId projectId, UserId userId) {
@@ -90,13 +91,9 @@ public class ProjectMembershipJdbcAdapter implements ProjectMembershipRepository
      * Lists memberships for a project with pagination.
      *
      * @param projectId the project identity
-     * @param offset    the number of rows to skip
-     * @param limit     the maximum number of rows to return
-     * @return the memberships for the project
-     *
-     * <pre>{@code
-     * List<ProjectMembership> page = memberships.findByProject(projectId, 0, 20);
-     * }</pre>
+     * @param offset    rows to skip
+     * @param limit     max rows to return
+     * @return the project memberships
      */
     @Override
     public List<ProjectMembership> findByProject(ProjectId projectId, int offset, int limit) {
@@ -117,14 +114,10 @@ public class ProjectMembershipJdbcAdapter implements ProjectMembershipRepository
     }
 
     /**
-     * Counts the total memberships for a project.
+     * Counts memberships for a project.
      *
      * @param projectId the project identity
-     * @return the number of members in the project
-     *
-     * <pre>{@code
-     * long memberCount = memberships.countByProject(projectId);
-     * }</pre>
+     * @return the member count
      */
     @Override
     public long countByProject(ProjectId projectId) {
@@ -135,14 +128,10 @@ public class ProjectMembershipJdbcAdapter implements ProjectMembershipRepository
     }
 
     /**
-     * Removes a membership by project and user combination.
+     * Removes a membership by project and user.
      *
      * @param projectId the project identity
      * @param userId    the user identity
-     *
-     * <pre>{@code
-     * memberships.deleteByProjectAndUser(projectId, userId);
-     * }</pre>
      */
     @Override
     public void deleteByProjectAndUser(ProjectId projectId, UserId userId) {

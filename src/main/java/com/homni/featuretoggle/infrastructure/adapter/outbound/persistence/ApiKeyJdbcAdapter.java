@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
@@ -17,6 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * JDBC adapter for persisting {@link ApiKey} aggregates.
+ */
 @Repository
 public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
 
@@ -29,6 +41,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
         this.jdbc = jdbc;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void save(ApiKey k) {
         Timestamp expiresAt = k.expiresAt != null ? Timestamp.from(k.expiresAt) : null;
@@ -50,6 +63,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
                 .update();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<ApiKey> findById(ApiKeyId id) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM api_key WHERE id = ?")
@@ -58,6 +72,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<ApiKey> findByTokenHash(TokenHash tokenHash) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM api_key WHERE token_hash = ? AND active = true")
@@ -66,6 +81,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<ApiKey> findAllByProject(ProjectId projectId, int offset, int limit) {
         return jdbc.sql("SELECT " + COLUMNS
@@ -77,6 +93,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
                 .list();
     }
 
+    /** {@inheritDoc} */
     @Override
     public long countByProject(ProjectId projectId) {
         return jdbc.sql("SELECT count(*) FROM api_key WHERE project_id = ?")
@@ -85,6 +102,7 @@ public class ApiKeyJdbcAdapter implements ApiKeyRepositoryPort {
                 .single();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void deleteById(ApiKeyId id) {
         jdbc.sql("DELETE FROM api_key WHERE id = ?")

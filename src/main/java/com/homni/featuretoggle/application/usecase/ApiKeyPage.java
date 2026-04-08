@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.domain.model.ApiKey;
@@ -6,16 +15,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A page of API keys with pagination metadata.
+ * Paginated API keys.
  *
- * @param items         the API keys on this page
- * @param totalElements total count across all pages
+ * @param items         API keys on this page
+ * @param totalElements total count
  */
 public record ApiKeyPage(List<ApiKey> items, long totalElements) {
 
-    /**
-     * Creates a page with a defensive copy of the items list.
-     */
+    /** Defensive copy of items. */
     public ApiKeyPage {
         Objects.requireNonNull(items, "items must not be null");
         items = List.copyOf(items);

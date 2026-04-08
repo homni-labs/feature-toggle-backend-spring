@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.port.out;
 
 import com.homni.featuretoggle.domain.model.ApiKey;
@@ -10,10 +19,6 @@ import java.util.Optional;
 
 /**
  * Output port for persisting API keys scoped to a project.
- *
- * <pre>{@code
- * Optional<ApiKey> key = apiKeys.findByTokenHash(hash);
- * }</pre>
  */
 public interface ApiKeyRepositoryPort {
 
@@ -21,71 +26,47 @@ public interface ApiKeyRepositoryPort {
      * Saves an API key (insert or update).
      *
      * @param apiKey the API key to save
-     *
-     * <pre>{@code
-     * apiKeys.save(newApiKey);
-     * }</pre>
      */
     void save(ApiKey apiKey);
 
     /**
-     * Finds an API key by its identity.
+     * Finds an API key by identity.
      *
-     * @param id the API key identity
+     * @param id API key identity
      * @return the API key if found, or empty
-     *
-     * <pre>{@code
-     * Optional<ApiKey> key = apiKeys.findById(keyId);
-     * }</pre>
      */
     Optional<ApiKey> findById(ApiKeyId id);
 
     /**
-     * Finds an API key by the hash of its raw token.
+     * Finds an API key by token hash.
      *
-     * @param tokenHash the SHA-256 hash of the raw token
+     * @param tokenHash SHA-256 hash of the raw token
      * @return the API key if found, or empty
-     *
-     * <pre>{@code
-     * Optional<ApiKey> key = apiKeys.findByTokenHash(TokenHash.of(rawToken));
-     * }</pre>
      */
     Optional<ApiKey> findByTokenHash(TokenHash tokenHash);
 
     /**
-     * Lists API keys belonging to a project with pagination.
+     * Lists API keys for a project with pagination.
      *
-     * @param projectId the owning project identity
-     * @param offset    the number of rows to skip
-     * @param limit     the maximum number of rows to return
+     * @param projectId owning project identity
+     * @param offset    rows to skip
+     * @param limit     max rows to return
      * @return the matching API keys
-     *
-     * <pre>{@code
-     * List<ApiKey> page = apiKeys.findAllByProject(projectId, 0, 20);
-     * }</pre>
      */
     List<ApiKey> findAllByProject(ProjectId projectId, int offset, int limit);
 
     /**
-     * Counts API keys belonging to a project.
+     * Counts API keys in a project.
      *
-     * @param projectId the owning project identity
-     * @return the total number of API keys in the project
-     *
-     * <pre>{@code
-     * long total = apiKeys.countByProject(projectId);
-     * }</pre>
+     * @param projectId owning project identity
+     * @return total API key count
      */
     long countByProject(ProjectId projectId);
 
     /**
-     * Deletes an API key by its identity.
+     * Deletes an API key by identity.
      *
-     * @param id the API key identity
-     *
-     * <pre>{@code
-     * apiKeys.deleteById(keyId);
-     * }</pre>
+     * @param id API key identity
      */
     void deleteById(ApiKeyId id);
 }

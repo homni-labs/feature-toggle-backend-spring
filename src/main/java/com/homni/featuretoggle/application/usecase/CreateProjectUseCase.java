@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.ProjectRepositoryPort;
@@ -5,34 +14,27 @@ import com.homni.featuretoggle.domain.model.Project;
 import com.homni.featuretoggle.domain.model.ProjectSlug;
 
 /**
- * Creates a new project with the given key, name, and description.
+ * Creates a new project.
  */
 public final class CreateProjectUseCase {
 
     private final ProjectRepositoryPort projects;
 
     /**
-     * Creates a create-project use case.
-     *
-     * @param projects the project persistence port
+     * @param projects project persistence port
      */
     public CreateProjectUseCase(ProjectRepositoryPort projects) {
         this.projects = projects;
     }
 
     /**
-     * Creates a new project and persists it.
+     * Creates a project and persists it.
      *
-     * @param key         the unique project key
-     * @param name        the human-readable project name
-     * @param description the project description, may be {@code null}
+     * @param slug        unique project slug
+     * @param name        human-readable project name
+     * @param description optional project description
      * @return the created project
-     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the key is invalid
-     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the name is invalid
-     *
-     * <pre>{@code
-     * Project project = createProject.execute(new ProjectSlug("MY-APP"), "My App", "Main backend");
-     * }</pre>
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if slug or name is invalid
      */
     public Project execute(ProjectSlug slug, String name, String description) {
         Project project = new Project(slug, name, description);

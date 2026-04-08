@@ -1,23 +1,23 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 /**
- * Access level for platform administrators who have unrestricted permissions
- * across all projects.
- *
- * <p>The {@link #ensure(Permission)} method is a no-op because platform admins
- * are never denied access.</p>
+ * Unrestricted access for platform administrators.
  */
 public final class PlatformAdminAccess implements ProjectAccess {
 
     /**
-     * No-op: platform administrators have all permissions by definition.
+     * No-op: platform admins have all permissions.
      *
-     * @param permission the permission to verify (ignored)
-     *
-     * <pre>{@code
-     * ProjectAccess admin = new PlatformAdminAccess();
-     * admin.ensure(Permission.MANAGE_MEMBERS);  // always passes
-     * }</pre>
+     * @param permission ignored
      */
     @Override
     public void ensure(Permission permission) {

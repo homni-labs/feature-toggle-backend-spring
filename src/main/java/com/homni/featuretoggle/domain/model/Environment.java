@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
@@ -6,8 +15,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Deployment environment scoped to a project.
- * Name is unique within the project and normalized to uppercase.
+ * Deployment environment scoped to a project, normalized to uppercase.
  */
 public final class Environment {
 
@@ -21,8 +29,8 @@ public final class Environment {
      * Creates a new environment within a project.
      *
      * @param projectId the owning project
-     * @param name      the environment name (1-50 non-blank characters)
-     * @throws DomainValidationException if the name is invalid
+     * @param name      environment name (1-50 chars)
+     * @throws DomainValidationException if name is invalid
      */
     public Environment(ProjectId projectId, String name) {
         this.id = new EnvironmentId();
@@ -32,12 +40,13 @@ public final class Environment {
     }
 
     /**
-     * Restores an environment from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id        the environment identity
      * @param projectId the owning project
      * @param name      the environment name
-     * @param createdAt the creation timestamp
+     * @param createdAt creation timestamp
+     * @throws DomainValidationException if name is invalid
      */
     public Environment(EnvironmentId id, ProjectId projectId, String name, Instant createdAt) {
         this.id = Objects.requireNonNull(id);
@@ -47,9 +56,9 @@ public final class Environment {
     }
 
     /**
-     * Returns the environment name.
+     * Uppercase environment name.
      *
-     * @return the uppercase environment name
+     * @return the environment name
      */
     public String name() {
         return this.name;

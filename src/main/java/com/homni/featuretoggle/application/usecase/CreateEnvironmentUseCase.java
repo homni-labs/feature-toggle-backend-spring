@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -11,7 +20,7 @@ import com.homni.featuretoggle.domain.model.Project;
 import com.homni.featuretoggle.domain.model.ProjectId;
 
 /**
- * Creates a new deployment environment within a project.
+ * Creates a deployment environment in a project.
  */
 public final class CreateEnvironmentUseCase {
 
@@ -20,11 +29,9 @@ public final class CreateEnvironmentUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a create-environment use case.
-     *
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public CreateEnvironmentUseCase(EnvironmentRepositoryPort environments,
                                     ProjectRepositoryPort projects,
@@ -35,18 +42,14 @@ public final class CreateEnvironmentUseCase {
     }
 
     /**
-     * Creates a new environment in the specified project.
+     * Creates an environment in a project.
      *
-     * @param projectId the owning project identity
-     * @param name      the environment name (will be normalized to uppercase)
+     * @param projectId owning project identity
+     * @param name      environment name (uppercased)
      * @return the created environment
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks WRITE_TOGGLES
      * @throws ProjectArchivedException if the project is archived
      * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the name is invalid
-     *
-     * <pre>{@code
-     * Environment env = createEnvironment.execute(projectId, "staging");
-     * }</pre>
      */
     public Environment execute(ProjectId projectId, String name) {
         callerAccess.resolve(projectId).ensure(Permission.WRITE_TOGGLES);

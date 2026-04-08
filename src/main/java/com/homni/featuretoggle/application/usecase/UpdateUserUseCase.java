@@ -1,16 +1,25 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
 import com.homni.featuretoggle.application.port.out.CallerPort;
 import com.homni.featuretoggle.domain.exception.CannotModifySelfException;
 import com.homni.featuretoggle.domain.exception.EntityNotFoundException;
+import com.homni.featuretoggle.domain.exception.InvalidStateException;
 import com.homni.featuretoggle.domain.model.AppUser;
 import com.homni.featuretoggle.domain.model.PlatformRole;
 import com.homni.featuretoggle.domain.model.UserId;
 
 /**
  * Updates a user's platform role and active status.
- * A platform admin cannot modify their own account.
  */
 public final class UpdateUserUseCase {
 
@@ -18,10 +27,8 @@ public final class UpdateUserUseCase {
     private final CallerPort callerPort;
 
     /**
-     * Creates an update-user use case.
-     *
-     * @param users      the user persistence port
-     * @param callerPort provides the authenticated caller
+     * @param users      user persistence port
+     * @param callerPort authenticated caller provider
      */
     public UpdateUserUseCase(AppUserRepositoryPort users, CallerPort callerPort) {
         this.users = users;
@@ -29,18 +36,15 @@ public final class UpdateUserUseCase {
     }
 
     /**
-     * Updates the platform role and/or active status of a user.
+     * Updates platform role and/or active status.
      *
-     * @param targetId  the user to update
-     * @param newRole   the new platform role, or {@code null} to leave unchanged
-     * @param newActive the new active status, or {@code null} to leave unchanged
+     * @param targetId  user to update
+     * @param newRole   new role, or {@code null} to keep
+     * @param newActive new active flag, or {@code null} to keep
      * @return the updated user
-     * @throws CannotModifySelfException if the caller tries to modify themselves
+     * @throws CannotModifySelfException if the caller modifies themselves
      * @throws EntityNotFoundException if the user does not exist
-     *
-     * <pre>{@code
-     * AppUser updated = updateUser.execute(targetId, PlatformRole.PLATFORM_ADMIN, null);
-     * }</pre>
+     * @throws InvalidStateException if the state transition is invalid
      */
     public AppUser execute(UserId targetId, PlatformRole newRole, Boolean newActive) {
         UserId callerId = callerPort.get().id;

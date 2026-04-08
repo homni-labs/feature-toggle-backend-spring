@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
@@ -10,9 +19,10 @@ import com.homni.featuretoggle.domain.exception.DomainValidationException;
 public record Email(String value) {
 
     /**
-     * Creates a validated email address, normalized to lowercase.
+     * Validates and normalizes to lowercase.
      *
      * @param value the raw email string
+     * @throws DomainValidationException if format is invalid
      */
     public Email {
         if (value == null || value.isBlank()

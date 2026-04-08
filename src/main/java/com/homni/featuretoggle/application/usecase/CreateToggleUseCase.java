@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -14,7 +23,7 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 import java.util.Set;
 
 /**
- * Creates a new feature toggle within a project.
+ * Creates a feature toggle in a project.
  */
 public final class CreateToggleUseCase {
 
@@ -24,12 +33,10 @@ public final class CreateToggleUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a create-toggle use case.
-     *
-     * @param toggles      the toggle persistence port
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param toggles      toggle persistence port
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public CreateToggleUseCase(FeatureToggleRepositoryPort toggles,
                                EnvironmentRepositoryPort environments,
@@ -42,21 +49,16 @@ public final class CreateToggleUseCase {
     }
 
     /**
-     * Creates a feature toggle in the specified project.
+     * Creates a feature toggle in a project.
      *
-     * @param projectId        the owning project identity
-     * @param name             the toggle name
-     * @param description      the toggle description, may be {@code null}
-     * @param environmentNames the set of environment names to assign
+     * @param projectId        owning project identity
+     * @param name             toggle name
+     * @param description      optional toggle description
+     * @param environmentNames environment names to assign
      * @return the created feature toggle
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks WRITE_TOGGLES
      * @throws ProjectArchivedException if the project is archived
-     * @throws EntityNotFoundException if any environment name does not exist in the project
-     *
-     * <pre>{@code
-     * FeatureToggle toggle = createToggle.execute(projectId, "dark-mode", "Dark mode toggle",
-     *         Set.of("PRODUCTION", "STAGING"));
-     * }</pre>
+     * @throws EntityNotFoundException if any environment does not exist
      */
     public FeatureToggle execute(ProjectId projectId, String name, String description,
                                  Set<String> environmentNames) {

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.port.out;
 
 import com.homni.featuretoggle.domain.model.Project;
@@ -10,12 +19,6 @@ import java.util.Optional;
 
 /**
  * Output port for persisting projects.
- *
- * <pre>{@code
- * Project project = projects.findById(projectId).orElseThrow();
- * project.archive();
- * projects.save(project);
- * }</pre>
  */
 public interface ProjectRepositoryPort {
 
@@ -23,22 +26,14 @@ public interface ProjectRepositoryPort {
      * Saves a project (insert or update).
      *
      * @param project the project to save
-     *
-     * <pre>{@code
-     * projects.save(newProject);
-     * }</pre>
      */
     void save(Project project);
 
     /**
-     * Finds a project by its identity.
+     * Finds a project by identity.
      *
-     * @param id the project identity
+     * @param id project identity
      * @return the project if found, or empty
-     *
-     * <pre>{@code
-     * Optional<Project> project = projects.findById(projectId);
-     * }</pre>
      */
     Optional<Project> findById(ProjectId id);
 
@@ -46,35 +41,22 @@ public interface ProjectRepositoryPort {
      * Returns all projects ordered by name.
      *
      * @return all projects
-     *
-     * <pre>{@code
-     * List<Project> all = projects.findAll();
-     * }</pre>
      */
     List<Project> findAll();
 
     /**
-     * Returns all projects where the given user is a member.
+     * Returns projects where the user is a member.
      *
-     * @param userId the user identity
-     * @return the projects the user belongs to
-     *
-     * <pre>{@code
-     * List<Project> myProjects = projects.findByMember(currentUserId);
-     * }</pre>
+     * @param userId user identity
+     * @return the user's projects
      */
     List<Project> findByMember(UserId userId);
 
     /**
-     * Returns all non-archived projects where the given user is a member,
-     * including the user's role in each project.
+     * Returns non-archived projects with the user's role.
      *
-     * @param userId the user identity
-     * @return the projects with the user's role
-     *
-     * <pre>{@code
-     * List<ProjectWithRole> myProjects = projects.findByMemberWithRole(currentUserId);
-     * }</pre>
+     * @param userId user identity
+     * @return projects with role
      */
     List<ProjectWithRole> findByMemberWithRole(UserId userId);
 }

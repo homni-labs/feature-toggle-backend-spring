@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import java.time.Instant;
@@ -5,10 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Aggregate root representing a user's membership and role within a project.
- *
- * <p>Links a {@link UserId} to a {@link ProjectId} with a specific {@link ProjectRole}.
- * The role can be changed over time via {@link #changeRole(ProjectRole)}.</p>
+ * User's membership and role within a project.
  */
 public final class ProjectMembership {
 
@@ -27,11 +33,7 @@ public final class ProjectMembership {
      *
      * @param projectId the project identity
      * @param userId    the user identity
-     * @param role      the initial role assigned to the user
-     *
-     * <pre>{@code
-     * ProjectMembership membership = new ProjectMembership(projectId, userId, ProjectRole.EDITOR);
-     * }</pre>
+     * @param role      the initial role
      */
     public ProjectMembership(ProjectId projectId, UserId userId, ProjectRole role) {
         this.id = new ProjectMembershipId();
@@ -43,14 +45,14 @@ public final class ProjectMembership {
     }
 
     /**
-     * Restores a project membership from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id        the membership identity
      * @param projectId the project identity
      * @param userId    the user identity
      * @param role      the assigned role
-     * @param grantedAt the grant timestamp
-     * @param updatedAt the last modification timestamp, may be {@code null}
+     * @param grantedAt grant timestamp
+     * @param updatedAt last modification timestamp
      */
     public ProjectMembership(ProjectMembershipId id, ProjectId projectId, UserId userId,
                              ProjectRole role, Instant grantedAt, Instant updatedAt) {
@@ -63,7 +65,16 @@ public final class ProjectMembership {
     }
 
     /**
-     * Restores a project membership with user info from persistent storage (JOIN query).
+     * Reconstitutes from storage with user info (JOIN query).
+     *
+     * @param id          the membership identity
+     * @param projectId   the project identity
+     * @param userId      the user identity
+     * @param role        the assigned role
+     * @param grantedAt   grant timestamp
+     * @param updatedAt   last modification timestamp
+     * @param email       the user's email
+     * @param displayName the user's display name
      */
     public ProjectMembership(ProjectMembershipId id, ProjectId projectId, UserId userId,
                              ProjectRole role, Instant grantedAt, Instant updatedAt,
@@ -74,13 +85,9 @@ public final class ProjectMembership {
     }
 
     /**
-     * Changes the role assigned to this member within the project.
+     * Changes the role of this member.
      *
-     * @param newRole the new role to assign
-     *
-     * <pre>{@code
-     * membership.changeRole(ProjectRole.ADMIN);
-     * }</pre>
+     * @param newRole the new role
      */
     public void changeRole(ProjectRole newRole) {
         Objects.requireNonNull(newRole, "ProjectRole must not be null");
@@ -89,29 +96,28 @@ public final class ProjectMembership {
     }
 
     /**
-     * Returns the current role of this member.
+     * Current role of this member.
      *
-     * @return the assigned project role
+     * @return the project role
      */
     public ProjectRole currentRole() {
         return this.role;
     }
 
     /**
-     * Returns the instant when this membership was last modified.
+     * Last modification timestamp.
      *
-     * @return the last modification timestamp, or empty if never modified
+     * @return the timestamp, or empty if never modified
      */
     public Optional<Instant> lastModifiedAt() {
         return Optional.ofNullable(this.updatedAt);
     }
 
     /**
-     * Enriches this membership with user display info.
-     * Called by use-cases that already have the user loaded.
+     * Enriches with user display info from a loaded user.
      *
      * @param email       the user's email
-     * @param displayName the user's display name, may be {@code null}
+     * @param displayName the display name
      */
     public void enrichWithUserInfo(String email, String displayName) {
         this.email = email;
@@ -119,14 +125,18 @@ public final class ProjectMembership {
     }
 
     /**
-     * Returns the member's email, if loaded via JOIN.
+     * Member's email, if loaded via JOIN.
+     *
+     * @return the email, or empty
      */
     public Optional<String> email() {
         return Optional.ofNullable(this.email);
     }
 
     /**
-     * Returns the member's display name, if loaded via JOIN.
+     * Member's display name, if loaded via JOIN.
+     *
+     * @return the display name, or empty
      */
     public Optional<String> displayName() {
         return Optional.ofNullable(this.displayName);

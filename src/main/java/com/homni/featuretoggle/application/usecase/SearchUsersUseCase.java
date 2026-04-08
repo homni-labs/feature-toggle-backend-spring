@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
@@ -6,8 +15,7 @@ import com.homni.featuretoggle.domain.model.AppUser;
 import java.util.List;
 
 /**
- * Searches platform users by email or name substring.
- * Used by project admins to find users for membership assignment.
+ * Searches users by email or name substring.
  */
 public final class SearchUsersUseCase {
 
@@ -16,23 +24,17 @@ public final class SearchUsersUseCase {
     private final AppUserRepositoryPort users;
 
     /**
-     * Creates a search-users use case.
-     *
-     * @param users the user persistence port
+     * @param users user persistence port
      */
     public SearchUsersUseCase(AppUserRepositoryPort users) {
         this.users = users;
     }
 
     /**
-     * Searches users whose email or name contains the query string (case-insensitive).
+     * Searches users by email or name (case-insensitive).
      *
-     * @param query the search query
+     * @param query search query
      * @return up to 20 matching users
-     *
-     * <pre>{@code
-     * List<AppUser> results = searchUsers.execute("ivan");
-     * }</pre>
      */
     public List<AppUser> execute(String query) {
         if (query == null || query.isBlank()) {

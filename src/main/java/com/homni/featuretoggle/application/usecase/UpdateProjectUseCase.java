@@ -1,14 +1,24 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
 import com.homni.featuretoggle.application.port.out.ProjectRepositoryPort;
 import com.homni.featuretoggle.domain.exception.EntityNotFoundException;
+import com.homni.featuretoggle.domain.exception.InvalidStateException;
 import com.homni.featuretoggle.domain.model.Permission;
 import com.homni.featuretoggle.domain.model.Project;
 import com.homni.featuretoggle.domain.model.ProjectId;
 
 /**
- * Updates the mutable fields of an existing project.
+ * Updates mutable fields of an existing project.
  */
 public final class UpdateProjectUseCase {
 
@@ -16,10 +26,8 @@ public final class UpdateProjectUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates an update-project use case.
-     *
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public UpdateProjectUseCase(ProjectRepositoryPort projects,
                                  CallerProjectAccessPort callerAccess) {
@@ -30,17 +38,15 @@ public final class UpdateProjectUseCase {
     /**
      * Updates a project's name, description, and/or archived status.
      *
-     * @param id          the project identity
-     * @param name        the new project name, or {@code null} to keep current
-     * @param description the new project description, or {@code null} to keep current
-     * @param archived    the new archived status, or {@code null} to keep current
+     * @param id          project identity
+     * @param name        new project name
+     * @param description new description, may be {@code null}
+     * @param archived    new archived flag, or {@code null} to keep
      * @return the updated project
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
      * @throws EntityNotFoundException if the project does not exist
-     *
-     * <pre>{@code
-     * Project updated = updateProject.execute(projectId, "New Name", null, null);
-     * }</pre>
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if name is invalid
+     * @throws InvalidStateException if archive/unarchive transition is invalid
      */
     public Project execute(ProjectId id, String name, String description, Boolean archived) {
         callerAccess.resolve(id).ensure(Permission.MANAGE_MEMBERS);

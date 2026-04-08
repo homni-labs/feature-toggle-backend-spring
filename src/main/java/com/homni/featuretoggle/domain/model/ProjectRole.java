@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import static com.homni.featuretoggle.domain.model.Permission.MANAGE_MEMBERS;
@@ -7,23 +16,17 @@ import static com.homni.featuretoggle.domain.model.Permission.WRITE_TOGGLES;
 import java.util.Set;
 
 /**
- * Role assigned to a user within a specific project, defining permitted operations.
+ * Role within a project, defining permitted operations.
  */
 public enum ProjectRole {
 
-    /**
-     * Project administrator with full control: read, write toggles, and manage members.
-     */
+    /** Full control: read, write, manage members. */
     ADMIN(Set.of(READ_TOGGLES, WRITE_TOGGLES, MANAGE_MEMBERS)),
 
-    /**
-     * Editor who can read and write toggles but cannot manage project members.
-     */
+    /** Read and write toggles, no member management. */
     EDITOR(Set.of(READ_TOGGLES, WRITE_TOGGLES)),
 
-    /**
-     * Read-only viewer who can only inspect toggle states.
-     */
+    /** Read-only access. */
     READER(Set.of(READ_TOGGLES));
 
     private final Set<Permission> permissions;
@@ -33,15 +36,10 @@ public enum ProjectRole {
     }
 
     /**
-     * Checks whether this role includes the given permission.
+     * Whether this role includes the given permission.
      *
      * @param permission the permission to check
-     * @return {@code true} if this role grants the permission
-     *
-     * <pre>{@code
-     * ProjectRole.ADMIN.has(Permission.MANAGE_MEMBERS);  // true
-     * ProjectRole.READER.has(Permission.WRITE_TOGGLES);  // false
-     * }</pre>
+     * @return {@code true} if granted
      */
     public boolean has(Permission permission) {
         return this.permissions.contains(permission);

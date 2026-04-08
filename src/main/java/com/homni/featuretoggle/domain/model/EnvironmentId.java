@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import java.util.Objects;
@@ -11,17 +20,15 @@ public final class EnvironmentId {
     public final UUID value;
 
     /**
-     * Creates an environment identity from an existing UUID.
+     * Wraps an existing UUID.
      *
-     * @param value the UUID value
+     * @param value the UUID
      */
     public EnvironmentId(UUID value) {
         this.value = Objects.requireNonNull(value, "EnvironmentId must not be null");
     }
 
-    /**
-     * Generates a new random environment identity.
-     */
+    /** Generates a new random identity. */
     public EnvironmentId() {
         this(UUID.randomUUID());
     }

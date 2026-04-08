@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -21,11 +30,9 @@ public final class DeleteToggleUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a delete-toggle use case.
-     *
-     * @param toggles      the toggle persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param toggles      toggle persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public DeleteToggleUseCase(FeatureToggleRepositoryPort toggles,
                                ProjectRepositoryPort projects,
@@ -36,16 +43,12 @@ public final class DeleteToggleUseCase {
     }
 
     /**
-     * Deletes the specified feature toggle.
+     * Deletes a feature toggle.
      *
-     * @param id the toggle identity
+     * @param id toggle identity
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks WRITE_TOGGLES
-     * @throws ProjectArchivedException if the owning project is archived
+     * @throws ProjectArchivedException if the project is archived
      * @throws EntityNotFoundException if the toggle does not exist
-     *
-     * <pre>{@code
-     * deleteToggle.execute(toggleId);
-     * }</pre>
      */
     public void execute(FeatureToggleId id) {
         FeatureToggle toggle = toggles.findById(id)

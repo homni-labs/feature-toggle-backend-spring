@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
@@ -17,8 +26,7 @@ import com.homni.featuretoggle.domain.model.UserId;
 import java.util.Optional;
 
 /**
- * Adds a user to a project or updates their role if already a member.
- * Upsert semantics: PUT /projects/{id}/members/{userId}.
+ * Adds a user to a project or updates their role (upsert semantics).
  */
 public final class UpsertMemberUseCase {
 
@@ -28,12 +36,10 @@ public final class UpsertMemberUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates an upsert-member use case.
-     *
-     * @param memberships  the membership persistence port
-     * @param users        the user persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param memberships  membership persistence port
+     * @param users        user persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public UpsertMemberUseCase(ProjectMembershipRepositoryPort memberships,
                                AppUserRepositoryPort users,
@@ -46,19 +52,15 @@ public final class UpsertMemberUseCase {
     }
 
     /**
-     * Adds a user to the project with the given role, or updates the role if already a member.
+     * Adds or updates a project membership.
      *
-     * @param projectId the project identity
-     * @param userId    the user identity
-     * @param role      the project role to assign
+     * @param projectId project identity
+     * @param userId    user identity
+     * @param role      role to assign
      * @return the created or updated membership
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
      * @throws ProjectArchivedException if the project is archived
      * @throws EntityNotFoundException if the user does not exist
-     *
-     * <pre>{@code
-     * ProjectMembership m = upsertMember.execute(projectId, userId, ProjectRole.EDITOR);
-     * }</pre>
      */
     public ProjectMembership execute(ProjectId projectId, UserId userId, ProjectRole role) {
         callerAccess.resolve(projectId).ensure(Permission.MANAGE_MEMBERS);

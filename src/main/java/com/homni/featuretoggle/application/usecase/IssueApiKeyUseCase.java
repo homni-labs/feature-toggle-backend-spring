@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
@@ -13,8 +22,7 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 import java.time.Instant;
 
 /**
- * Issues a new read-only API key bound to a project.
- * API keys always grant READER role for SDK/machine access.
+ * Issues a read-only API key bound to a project.
  */
 public final class IssueApiKeyUseCase {
 
@@ -23,11 +31,9 @@ public final class IssueApiKeyUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates an issue-api-key use case.
-     *
-     * @param apiKeys      the API key persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param apiKeys      API key persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public IssueApiKeyUseCase(ApiKeyRepositoryPort apiKeys,
                                ProjectRepositoryPort projects,
@@ -38,18 +44,15 @@ public final class IssueApiKeyUseCase {
     }
 
     /**
-     * Issues a new read-only API key for the specified project.
+     * Issues a read-only API key for the project.
      *
-     * @param projectId the owning project identity
-     * @param name      the key name (1-255 non-blank characters)
-     * @param expiresAt the expiration timestamp, may be {@code null} for no expiration
-     * @return the issued API key containing both the persisted key and the raw token
+     * @param projectId owning project identity
+     * @param name      key name (1-255 chars)
+     * @param expiresAt expiration, or {@code null}
+     * @return the issued key with raw token
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
      * @throws ProjectArchivedException if the project is archived
-     *
-     * <pre>{@code
-     * IssuedApiKey issued = issueApiKey.execute(projectId, "ci-pipeline", null);
-     * }</pre>
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the name is invalid
      */
     public IssuedApiKey execute(ProjectId projectId, String name, Instant expiresAt) {
         callerAccess.resolve(projectId).ensure(Permission.MANAGE_MEMBERS);

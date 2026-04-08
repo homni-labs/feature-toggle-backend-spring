@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
@@ -25,14 +34,13 @@ public final class FeatureToggle {
     private final Set<String> environments;
 
     /**
-     * Creates a new feature toggle in a disabled state within a project.
+     * Creates a new disabled toggle within a project.
      *
      * @param projectId    the owning project
-     * @param name         the toggle name (1-255 non-blank characters)
-     * @param description  the human-readable description, may be {@code null}
-     * @param environments the initial set of environment names, must not be empty
-     * @throws DomainValidationException if the name is invalid
-     * @throws DomainValidationException if environments is empty
+     * @param name         toggle name (1-255 chars)
+     * @param description  optional description
+     * @param environments initial environments, non-empty
+     * @throws DomainValidationException if name or environments invalid
      */
     public FeatureToggle(ProjectId projectId, String name, String description,
                          Set<String> environments) {
@@ -47,16 +55,17 @@ public final class FeatureToggle {
     }
 
     /**
-     * Restores a feature toggle from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id           the toggle identity
      * @param projectId    the owning project
      * @param name         the toggle name
-     * @param description  the toggle description, may be {@code null}
-     * @param enabled      whether the toggle is enabled
-     * @param environments the assigned environment names
-     * @param createdAt    the creation timestamp
-     * @param updatedAt    the last modification timestamp, may be {@code null}
+     * @param description  optional description
+     * @param enabled      enabled flag
+     * @param environments assigned environment names
+     * @param createdAt    creation timestamp
+     * @param updatedAt    last modification timestamp
+     * @throws DomainValidationException if name or environments invalid
      */
     public FeatureToggle(FeatureToggleId id, ProjectId projectId, String name,
                          String description, boolean enabled, Set<String> environments,
@@ -72,10 +81,10 @@ public final class FeatureToggle {
     }
 
     /**
-     * Enables this feature toggle and records the modification time.
+     * Enables this toggle.
      *
      * @return this toggle for chaining
-     * @throws InvalidStateException if the toggle is already enabled
+     * @throws InvalidStateException if already enabled
      */
     public FeatureToggle enable() {
         if (this.enabled) {
@@ -87,10 +96,10 @@ public final class FeatureToggle {
     }
 
     /**
-     * Disables this feature toggle and records the modification time.
+     * Disables this toggle.
      *
      * @return this toggle for chaining
-     * @throws InvalidStateException if the toggle is already disabled
+     * @throws InvalidStateException if already disabled
      */
     public FeatureToggle disable() {
         if (!this.enabled) {
@@ -102,12 +111,12 @@ public final class FeatureToggle {
     }
 
     /**
-     * Updates the mutable fields of this toggle.
-     * Each parameter may be {@code null} to skip updating that field.
+     * Updates mutable fields; {@code null} parameters are skipped.
      *
-     * @param newName         the new name, or {@code null} to keep current
-     * @param newDescription  the new description, or {@code null} to keep current
-     * @param newEnvironments the new set of environment names, or {@code null} to keep current
+     * @param newName         new name, or {@code null}
+     * @param newDescription  new description, or {@code null}
+     * @param newEnvironments new environments, or {@code null}
+     * @throws DomainValidationException if name or environments invalid
      */
     public void update(String newName, String newDescription, Set<String> newEnvironments) {
         if (newName == null && newDescription == null && newEnvironments == null) {
@@ -128,7 +137,7 @@ public final class FeatureToggle {
     }
 
     /**
-     * Returns the current name of this toggle.
+     * Current toggle name.
      *
      * @return the toggle name
      */
@@ -137,36 +146,36 @@ public final class FeatureToggle {
     }
 
     /**
-     * Returns the toggle description text.
+     * Toggle description.
      *
-     * @return the description, or empty if not set
+     * @return the description, or empty
      */
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
     }
 
     /**
-     * Indicates whether this toggle is currently enabled.
+     * Whether this toggle is enabled.
      *
-     * @return {@code true} if the toggle is enabled
+     * @return {@code true} if enabled
      */
     public boolean isEnabled() {
         return this.enabled;
     }
 
     /**
-     * Returns the assigned environment names as an immutable copy.
+     * Assigned environment names (immutable copy).
      *
-     * @return the set of environment names
+     * @return the environment names
      */
     public Set<String> environments() {
         return Set.copyOf(this.environments);
     }
 
     /**
-     * Returns the instant when this toggle was last modified.
+     * Last modification timestamp.
      *
-     * @return the last modification timestamp, or empty if never modified
+     * @return the timestamp, or empty if never modified
      */
     public Optional<Instant> lastModifiedAt() {
         return Optional.ofNullable(this.updatedAt);

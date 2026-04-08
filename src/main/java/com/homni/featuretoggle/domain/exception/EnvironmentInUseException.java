@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 /**
@@ -6,7 +15,9 @@ package com.homni.featuretoggle.domain.exception;
 public final class EnvironmentInUseException extends DomainConflictException {
 
     /**
-     * @param name the environment name that is still in use
+     * Creates exception for an environment still referenced by toggles.
+     *
+     * @param name the environment name in use
      */
     public EnvironmentInUseException(String name) {
         super("Environment '%s' is still used by one or more feature toggles".formatted(name));

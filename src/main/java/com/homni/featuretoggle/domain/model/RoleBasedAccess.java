@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.InsufficientPermissionException;
@@ -5,11 +14,7 @@ import com.homni.featuretoggle.domain.exception.InsufficientPermissionException;
 import java.util.Objects;
 
 /**
- * Access level governed by a {@link ProjectRole} within a specific project.
- *
- * <p>The {@link #ensure(Permission)} method throws
- * {@link InsufficientPermissionException} when the role does not include
- * the required permission.</p>
+ * Access governed by a {@link ProjectRole} within a project.
  */
 public final class RoleBasedAccess implements ProjectAccess {
 
@@ -17,15 +22,10 @@ public final class RoleBasedAccess implements ProjectAccess {
     private final ProjectRole role;
 
     /**
-     * Creates a role-based access check bound to a project and role.
+     * Creates role-based access for a project.
      *
      * @param projectId the project identity
-     * @param role      the role assigned to the user in this project
-     *
-     * <pre>{@code
-     * ProjectAccess access = new RoleBasedAccess(projectId, ProjectRole.EDITOR);
-     * access.ensure(Permission.WRITE_TOGGLES);  // passes
-     * }</pre>
+     * @param role      the assigned role
      */
     public RoleBasedAccess(ProjectId projectId, ProjectRole role) {
         this.projectId = Objects.requireNonNull(projectId, "ProjectId must not be null");
@@ -33,16 +33,10 @@ public final class RoleBasedAccess implements ProjectAccess {
     }
 
     /**
-     * Verifies that the assigned role grants the required permission.
+     * Verifies the role grants the required permission.
      *
-     * @param permission the permission to verify
-     * @throws InsufficientPermissionException if the role does not include the permission
-     *
-     * <pre>{@code
-     * ProjectAccess reader = new RoleBasedAccess(projectId, ProjectRole.READER);
-     * reader.ensure(Permission.READ_TOGGLES);    // passes
-     * reader.ensure(Permission.WRITE_TOGGLES);   // throws InsufficientPermissionException
-     * }</pre>
+     * @param permission the required permission
+     * @throws InsufficientPermissionException if not granted
      */
     @Override
     public void ensure(Permission permission) {

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import java.util.Objects;
@@ -11,17 +20,15 @@ public final class UserId {
     public final UUID value;
 
     /**
-     * Creates a user identity from an existing UUID.
+     * Wraps an existing UUID.
      *
-     * @param value the UUID value
+     * @param value the UUID
      */
     public UserId(UUID value) {
         this.value = Objects.requireNonNull(value, "UserId must not be null");
     }
 
-    /**
-     * Generates a new random user identity.
-     */
+    /** Generates a new random identity. */
     public UserId() {
         this(UUID.randomUUID());
     }

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
@@ -9,9 +18,6 @@ import java.util.Optional;
 
 /**
  * Aggregate root representing a project that groups feature toggles.
- *
- * <p>A project has a unique {@link ProjectSlug}, a human-readable name,
- * an optional description, and can be archived/unarchived.</p>
  */
 public final class Project {
 
@@ -27,14 +33,10 @@ public final class Project {
     /**
      * Creates a new active project.
      *
-     * @param key         the unique project key
-     * @param name        the human-readable name (1-255 non-blank characters)
-     * @param description the project description, may be {@code null}
-     * @throws DomainValidationException if the name is invalid
-     *
-     * <pre>{@code
-     * Project project = new Project(new ProjectSlug("MY-APP"), "My Application", "Main backend");
-     * }</pre>
+     * @param slug        the unique project slug
+     * @param name        the project name (1-255 chars)
+     * @param description optional description
+     * @throws DomainValidationException if name is invalid
      */
     public Project(ProjectSlug slug, String name, String description) {
         this.id = new ProjectId();
@@ -47,15 +49,16 @@ public final class Project {
     }
 
     /**
-     * Restores a project from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id          the project identity
-     * @param key         the unique project key
+     * @param slug        the unique project slug
      * @param name        the project name
-     * @param description the project description, may be {@code null}
-     * @param archived    whether the project is archived
-     * @param createdAt   the creation timestamp
-     * @param updatedAt   the last modification timestamp, may be {@code null}
+     * @param description optional description
+     * @param archived    archived flag
+     * @param createdAt   creation timestamp
+     * @param updatedAt   last modification timestamp
+     * @throws DomainValidationException if name is invalid
      */
     public Project(ProjectId id, ProjectSlug slug, String name, String description,
                    boolean archived, Instant createdAt, Instant updatedAt) {
@@ -69,16 +72,11 @@ public final class Project {
     }
 
     /**
-     * Updates the mutable fields of this project.
-     * If both arguments equal the current values, this is a no-op.
+     * Updates name and description; no-op if unchanged.
      *
-     * @param newName        the new name (1-255 non-blank characters)
-     * @param newDescription the new description, may be {@code null}
-     * @throws DomainValidationException if the new name is invalid
-     *
-     * <pre>{@code
-     * project.update("New Name", "Updated description");
-     * }</pre>
+     * @param newName        the new name (1-255 chars)
+     * @param newDescription optional new description
+     * @throws DomainValidationException if name is invalid
      */
     public void update(String newName, String newDescription) {
         if (this.name.equals(newName) && Objects.equals(this.description, newDescription)) {
@@ -90,13 +88,9 @@ public final class Project {
     }
 
     /**
-     * Archives this project, marking it as inactive.
+     * Archives this project.
      *
-     * @throws InvalidStateException if the project is already archived
-     *
-     * <pre>{@code
-     * project.archive();
-     * }</pre>
+     * @throws InvalidStateException if already archived
      */
     public void archive() {
         if (this.archived) {
@@ -107,13 +101,9 @@ public final class Project {
     }
 
     /**
-     * Restores this project from archived state, marking it as active.
+     * Restores this project from archived state.
      *
-     * @throws InvalidStateException if the project is not archived
-     *
-     * <pre>{@code
-     * project.unarchive();
-     * }</pre>
+     * @throws InvalidStateException if not archived
      */
     public void unarchive() {
         if (!this.archived) {
@@ -124,7 +114,7 @@ public final class Project {
     }
 
     /**
-     * Returns the current name of this project.
+     * Current project name.
      *
      * @return the project name
      */
@@ -133,27 +123,27 @@ public final class Project {
     }
 
     /**
-     * Indicates whether this project is currently archived.
+     * Whether this project is archived.
      *
-     * @return {@code true} if the project is archived
+     * @return {@code true} if archived
      */
     public boolean isArchived() {
         return this.archived;
     }
 
     /**
-     * Returns the project description.
+     * Project description.
      *
-     * @return the description, or empty if not set
+     * @return the description, or empty
      */
     public Optional<String> description() {
         return Optional.ofNullable(this.description);
     }
 
     /**
-     * Returns the instant when this project was last modified.
+     * Last modification timestamp.
      *
-     * @return the last modification timestamp, or empty if never modified
+     * @return the timestamp, or empty if never modified
      */
     public Optional<Instant> lastModifiedAt() {
         return Optional.ofNullable(this.updatedAt);

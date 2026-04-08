@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 /**
@@ -6,9 +15,9 @@ package com.homni.featuretoggle.domain.exception;
 public class DomainAccessDeniedException extends DomainException {
 
     /**
-     * Creates an access-denied exception with the given message.
+     * Creates an access-denied exception.
      *
-     * @param message description of the denied access
+     * @param message access denial description
      */
     public DomainAccessDeniedException(String message) {
         super(message);

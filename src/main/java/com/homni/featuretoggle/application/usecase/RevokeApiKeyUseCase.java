@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
@@ -21,11 +30,9 @@ public final class RevokeApiKeyUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a revoke-api-key use case.
-     *
-     * @param apiKeys      the API key persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param apiKeys      API key persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public RevokeApiKeyUseCase(ApiKeyRepositoryPort apiKeys,
                                 ProjectRepositoryPort projects,
@@ -36,17 +43,13 @@ public final class RevokeApiKeyUseCase {
     }
 
     /**
-     * Revokes the specified API key.
+     * Revokes an API key.
      *
-     * @param id the API key identity
+     * @param id API key identity
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
-     * @throws ProjectArchivedException if the owning project is archived
+     * @throws ProjectArchivedException if the project is archived
      * @throws EntityNotFoundException if the API key does not exist
      * @throws com.homni.featuretoggle.domain.exception.InvalidStateException if already revoked
-     *
-     * <pre>{@code
-     * revokeApiKey.execute(apiKeyId);
-     * }</pre>
      */
     public void execute(ApiKeyId id) {
         ApiKey apiKey = apiKeys.findById(id)

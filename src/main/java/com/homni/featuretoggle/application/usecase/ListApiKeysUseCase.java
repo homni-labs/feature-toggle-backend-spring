@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
@@ -9,7 +18,7 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 import java.util.List;
 
 /**
- * Lists API keys belonging to a project with pagination.
+ * Lists API keys for a project with pagination.
  */
 public final class ListApiKeysUseCase {
 
@@ -17,10 +26,8 @@ public final class ListApiKeysUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a list-api-keys use case.
-     *
-     * @param apiKeys      the API key persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param apiKeys      API key persistence port
+     * @param callerAccess caller's project access resolver
      */
     public ListApiKeysUseCase(ApiKeyRepositoryPort apiKeys,
                                CallerProjectAccessPort callerAccess) {
@@ -29,17 +36,13 @@ public final class ListApiKeysUseCase {
     }
 
     /**
-     * Lists API keys for the specified project.
+     * Lists API keys for a project.
      *
-     * @param projectId the owning project identity
-     * @param page      the zero-based page number
-     * @param size      the maximum number of items per page
+     * @param projectId owning project identity
+     * @param page      zero-based page number
+     * @param size      page size
      * @return a page of API keys
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks MANAGE_MEMBERS
-     *
-     * <pre>{@code
-     * ApiKeyPage page = listApiKeys.execute(projectId, 0, 20);
-     * }</pre>
      */
     public ApiKeyPage execute(ProjectId projectId, int page, int size) {
         callerAccess.resolve(projectId).ensure(Permission.MANAGE_MEMBERS);

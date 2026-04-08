@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -22,11 +31,9 @@ public final class DeleteEnvironmentUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a delete-environment use case.
-     *
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller's project access resolver
      */
     public DeleteEnvironmentUseCase(EnvironmentRepositoryPort environments,
                                     ProjectRepositoryPort projects,
@@ -37,18 +44,14 @@ public final class DeleteEnvironmentUseCase {
     }
 
     /**
-     * Deletes the specified environment from the project.
+     * Deletes an environment from a project.
      *
-     * @param id        the environment identity
-     * @param projectId the owning project identity
+     * @param id        environment identity
+     * @param projectId owning project identity
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks WRITE_TOGGLES
      * @throws ProjectArchivedException if the project is archived
      * @throws EntityNotFoundException if the environment does not exist
-     * @throws EnvironmentInUseException if the environment is referenced by feature toggles
-     *
-     * <pre>{@code
-     * deleteEnvironment.execute(envId, projectId);
-     * }</pre>
+     * @throws EnvironmentInUseException if referenced by toggles
      */
     public void execute(EnvironmentId id, ProjectId projectId) {
         callerAccess.resolve(projectId).ensure(Permission.WRITE_TOGGLES);

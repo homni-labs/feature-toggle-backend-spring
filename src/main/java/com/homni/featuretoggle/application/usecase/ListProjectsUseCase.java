@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerPort;
@@ -15,10 +24,8 @@ public final class ListProjectsUseCase {
     private final CallerPort callerPort;
 
     /**
-     * Creates a list-projects use case.
-     *
-     * @param projects   the project persistence port
-     * @param callerPort provides the authenticated caller
+     * @param projects   project persistence port
+     * @param callerPort authenticated caller provider
      */
     public ListProjectsUseCase(ProjectRepositoryPort projects, CallerPort callerPort) {
         this.projects = projects;
@@ -26,15 +33,9 @@ public final class ListProjectsUseCase {
     }
 
     /**
-     * Returns projects accessible to the caller: all projects for platform admins
-     * (with {@code myRole = null}), or only projects where the caller is a member
-     * for regular users (with the caller's project role).
+     * Lists projects accessible to the caller with their role.
      *
-     * @return the list of accessible projects with the caller's role
-     *
-     * <pre>{@code
-     * List<ProjectWithRole> visible = listProjects.execute();
-     * }</pre>
+     * @return projects with the caller's role
      */
     public List<ProjectWithRole> execute() {
         AppUser caller = callerPort.get();

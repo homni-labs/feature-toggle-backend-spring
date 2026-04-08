@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.exception;
 
 import com.homni.featuretoggle.domain.exception.DomainAccessDeniedException;
@@ -21,6 +30,9 @@ import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
 import java.util.stream.Collectors;
 
+/**
+ * Maps domain and framework exceptions to HTTP error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -28,6 +40,12 @@ public class GlobalExceptionHandler {
 
     // -- Domain exceptions ---------------------------------------------------
 
+    /**
+     * Handles domain access-denied exceptions.
+     *
+     * @param e the exception
+     * @return 403 error response
+     */
     @ExceptionHandler(DomainAccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleAccessDenied(DomainAccessDeniedException e) {
@@ -35,6 +53,12 @@ public class GlobalExceptionHandler {
         return error("FORBIDDEN", e.getMessage());
     }
 
+    /**
+     * Handles domain not-found exceptions.
+     *
+     * @param e the exception
+     * @return 404 error response
+     */
     @ExceptionHandler(DomainNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(DomainNotFoundException e) {
@@ -42,6 +66,12 @@ public class GlobalExceptionHandler {
         return error("NOT_FOUND", e.getMessage());
     }
 
+    /**
+     * Handles domain conflict exceptions.
+     *
+     * @param e the exception
+     * @return 409 error response
+     */
     @ExceptionHandler(DomainConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflict(DomainConflictException e) {
@@ -49,6 +79,12 @@ public class GlobalExceptionHandler {
         return error("CONFLICT", e.getMessage());
     }
 
+    /**
+     * Handles domain validation exceptions.
+     *
+     * @param e the exception
+     * @return 422 error response
+     */
     @ExceptionHandler(DomainValidationException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ErrorResponse handleDomainValidation(DomainValidationException e) {
@@ -58,6 +94,12 @@ public class GlobalExceptionHandler {
 
     // -- Validation exceptions -----------------------------------------------
 
+    /**
+     * Handles Spring bean validation failures.
+     *
+     * @param e the exception
+     * @return 400 error response
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(MethodArgumentNotValidException e) {
@@ -68,6 +110,12 @@ public class GlobalExceptionHandler {
         return error("VALIDATION_ERROR", "Validation failed", details);
     }
 
+    /**
+     * Handles Jakarta constraint violations.
+     *
+     * @param e the exception
+     * @return 400 error response
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConstraintViolation(ConstraintViolationException e) {
@@ -78,6 +126,12 @@ public class GlobalExceptionHandler {
         return error("VALIDATION_ERROR", "Validation failed", details);
     }
 
+    /**
+     * Handles missing request parameters.
+     *
+     * @param e the exception
+     * @return 400 error response
+     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingParam(MissingServletRequestParameterException e) {
@@ -85,6 +139,12 @@ public class GlobalExceptionHandler {
         return error("MISSING_PARAM", e.getMessage());
     }
 
+    /**
+     * Handles request parameter type mismatches.
+     *
+     * @param e the exception
+     * @return 400 error response
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleTypeMismatch(MethodArgumentTypeMismatchException e) {
@@ -95,6 +155,12 @@ public class GlobalExceptionHandler {
         return error("INVALID_PARAM", message);
     }
 
+    /**
+     * Handles illegal argument exceptions.
+     *
+     * @param e the exception
+     * @return 400 error response
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequest(IllegalArgumentException e) {
@@ -104,6 +170,12 @@ public class GlobalExceptionHandler {
 
     // -- Infrastructure exceptions -------------------------------------------
 
+    /**
+     * Catches all unhandled exceptions.
+     *
+     * @param e the exception
+     * @return 500 error response
+     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnexpected(Exception e) {

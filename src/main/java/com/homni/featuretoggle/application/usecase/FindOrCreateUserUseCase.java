@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.AppUserRepositoryPort;
@@ -8,8 +17,7 @@ import com.homni.featuretoggle.domain.model.PlatformRole;
 import java.util.Optional;
 
 /**
- * Finds an existing user by OIDC subject, or binds/creates one during first login.
- * Also bootstraps the default platform administrator.
+ * Finds a user by OIDC subject, or binds/creates one on first login.
  */
 public final class FindOrCreateUserUseCase {
 
@@ -17,10 +25,8 @@ public final class FindOrCreateUserUseCase {
     private final String defaultAdminEmail;
 
     /**
-     * Creates a find-or-create-user use case.
-     *
-     * @param users             the user persistence port
-     * @param defaultAdminEmail the email address of the default platform administrator
+     * @param users             user persistence port
+     * @param defaultAdminEmail default admin email address
      */
     public FindOrCreateUserUseCase(AppUserRepositoryPort users, String defaultAdminEmail) {
         this.users = users;
@@ -28,20 +34,13 @@ public final class FindOrCreateUserUseCase {
     }
 
     /**
-     * Resolves a user for the given OIDC subject: looks up by subject, attempts
-     * to bind a pre-provisioned account by email, or creates a new user. If the
-     * resolved user's email matches the default admin email and they hold the USER role,
-     * they are promoted to PLATFORM_ADMIN.
+     * Resolves or creates a user for the OIDC subject.
      *
-     * @param oidcSubject the OIDC subject identifier
-     * @param email       the user's email address
-     * @param name        the display name, may be {@code null}
+     * @param oidcSubject OIDC subject identifier
+     * @param email       user's email address
+     * @param name        display name, may be {@code null}
      * @return the resolved or created user
      * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the email is invalid
-     *
-     * <pre>{@code
-     * AppUser user = findOrCreateUser.execute("oidc|123", "user@example.com", "Alice");
-     * }</pre>
      */
     public AppUser execute(String oidcSubject, String email, String name) {
         AppUser user = resolveUser(oidcSubject, email, name);

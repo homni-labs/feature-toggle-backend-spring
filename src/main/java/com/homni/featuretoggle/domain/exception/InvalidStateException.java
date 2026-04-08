@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 /**
@@ -7,7 +16,9 @@ package com.homni.featuretoggle.domain.exception;
 public final class InvalidStateException extends DomainConflictException {
 
     /**
-     * @param message descriptive message including entity identity and current state
+     * Creates exception for an invalid state transition.
+     *
+     * @param message description with entity identity
      */
     public InvalidStateException(String message) {
         super(message);

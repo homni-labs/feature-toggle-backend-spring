@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.FeatureToggleRepositoryPort;
@@ -44,13 +53,9 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     }
 
     /**
-     * Saves a feature toggle using upsert, then syncs its environment associations.
+     * Saves a toggle via upsert and syncs environment associations.
      *
      * @param t the toggle to save
-     *
-     * <pre>{@code
-     * toggles.save(newToggle);
-     * }</pre>
      */
     @Override
     @Transactional
@@ -60,14 +65,10 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     }
 
     /**
-     * Finds a feature toggle by its identity.
+     * Finds a toggle by identity.
      *
      * @param id the toggle identity
-     * @return the toggle if found, or empty
-     *
-     * <pre>{@code
-     * Optional<FeatureToggle> toggle = toggles.findById(toggleId);
-     * }</pre>
+     * @return the toggle, or empty
      */
     @Override
     public Optional<FeatureToggle> findById(FeatureToggleId id) {
@@ -78,18 +79,14 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     }
 
     /**
-     * Lists feature toggles belonging to a project with optional filtering and pagination.
+     * Lists toggles for a project with optional filters and pagination.
      *
-     * @param projectId   the owning project identity
-     * @param enabled     filter by enabled status, or {@code null} for all
-     * @param environment filter by environment name, or {@code null} for all
-     * @param offset      the number of rows to skip
-     * @param limit       the maximum number of rows to return
-     * @return the matching toggles
-     *
-     * <pre>{@code
-     * List<FeatureToggle> page = toggles.findAllByProject(projectId, true, "PRODUCTION", 0, 20);
-     * }</pre>
+     * @param projectId   owning project identity
+     * @param enabled     enabled filter, or null
+     * @param environment environment filter, or null
+     * @param offset      rows to skip
+     * @param limit       max rows to return
+     * @return matching toggles
      */
     @Override
     public List<FeatureToggle> findAllByProject(ProjectId projectId, Boolean enabled,
@@ -104,16 +101,12 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     }
 
     /**
-     * Counts feature toggles belonging to a project matching the given filters.
+     * Counts toggles matching the given filters.
      *
-     * @param projectId   the owning project identity
-     * @param enabled     filter by enabled status, or {@code null} for all
-     * @param environment filter by environment name, or {@code null} for all
-     * @return the count of matching toggles
-     *
-     * <pre>{@code
-     * long total = toggles.countByProject(projectId, null, null);
-     * }</pre>
+     * @param projectId   owning project identity
+     * @param enabled     enabled filter, or null
+     * @param environment environment filter, or null
+     * @return the matching count
      */
     @Override
     public long countByProject(ProjectId projectId, Boolean enabled, String environment) {
@@ -127,13 +120,9 @@ public class FeatureToggleJdbcAdapter implements FeatureToggleRepositoryPort {
     }
 
     /**
-     * Deletes a feature toggle by its identity.
+     * Deletes a toggle by identity.
      *
      * @param id the toggle identity
-     *
-     * <pre>{@code
-     * toggles.deleteById(toggleId);
-     * }</pre>
      */
     @Override
     public void deleteById(FeatureToggleId id) {

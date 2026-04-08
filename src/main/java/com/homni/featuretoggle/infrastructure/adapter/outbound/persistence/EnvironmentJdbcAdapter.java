@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.adapter.outbound.persistence;
 
 import com.homni.featuretoggle.application.port.out.EnvironmentRepositoryPort;
@@ -18,6 +27,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * JDBC adapter for persisting {@link Environment} aggregates.
+ */
 @Repository
 public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
 
@@ -29,6 +41,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
         this.jdbc = jdbc;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void save(Environment env) {
         try {
@@ -48,6 +61,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<Environment> findById(EnvironmentId id) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM environment WHERE id = ?")
@@ -56,6 +70,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
                 .optional();
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Environment> findAllByProject(ProjectId projectId) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM environment WHERE project_id = ? ORDER BY name")
@@ -64,6 +79,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
                 .list();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Set<String> findNamesByProjectId(ProjectId projectId) {
         List<String> names = jdbc.sql("SELECT name FROM environment WHERE project_id = ?")
@@ -73,6 +89,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
         return new LinkedHashSet<>(names);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void deleteById(EnvironmentId id) {
         jdbc.sql("DELETE FROM environment WHERE id = ?")
@@ -80,6 +97,7 @@ public class EnvironmentJdbcAdapter implements EnvironmentRepositoryPort {
                 .update();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isEnvironmentInUse(String name, ProjectId projectId) {
         return jdbc.sql("""

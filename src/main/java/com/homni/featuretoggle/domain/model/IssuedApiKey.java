@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import java.security.SecureRandom;
@@ -5,8 +14,7 @@ import java.time.Instant;
 import java.util.Base64;
 
 /**
- * Result of issuing a new API key. Contains both the persisted key and the raw token
- * that must be shown to the user exactly once.
+ * Newly issued API key with the raw token (shown once).
  */
 public final class IssuedApiKey {
 
@@ -18,13 +26,12 @@ public final class IssuedApiKey {
     public final String rawToken;
 
     /**
-     * Issues a new read-only API key bound to a project with a securely generated token.
-     * API keys always grant READER role (read-only access).
+     * Issues a new read-only API key with a generated token.
      *
      * @param projectId the owning project
-     * @param name      the key name (1-255 non-blank characters)
-     * @param expiresAt the expiration timestamp, may be {@code null} for no expiration
-     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if the name is invalid
+     * @param name      key name (1-255 chars)
+     * @param expiresAt expiration, or {@code null}
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if name is invalid
      */
     public IssuedApiKey(ProjectId projectId, String name, Instant expiresAt) {
         this.rawToken = generateToken();

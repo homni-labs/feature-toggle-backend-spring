@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.port.out;
 
 import com.homni.featuretoggle.domain.model.Environment;
@@ -10,10 +19,6 @@ import java.util.Set;
 
 /**
  * Output port for persisting deployment environments scoped to a project.
- *
- * <pre>{@code
- * List<Environment> envs = environments.findAllByProject(projectId);
- * }</pre>
  */
 public interface EnvironmentRepositoryPort {
 
@@ -21,72 +26,46 @@ public interface EnvironmentRepositoryPort {
      * Saves an environment (insert or update).
      *
      * @param environment the environment to save
-     *
-     * <pre>{@code
-     * environments.save(newEnvironment);
-     * }</pre>
      */
     void save(Environment environment);
 
     /**
-     * Finds an environment by its identity.
+     * Finds an environment by identity.
      *
-     * @param id the environment identity
+     * @param id environment identity
      * @return the environment if found, or empty
-     *
-     * <pre>{@code
-     * Optional<Environment> env = environments.findById(envId);
-     * }</pre>
      */
     Optional<Environment> findById(EnvironmentId id);
 
     /**
-     * Returns all environments belonging to a project, ordered by name.
+     * Lists all environments for a project, ordered by name.
      *
-     * @param projectId the owning project identity
-     * @return all environments for the project
-     *
-     * <pre>{@code
-     * List<Environment> envs = environments.findAllByProject(projectId);
-     * }</pre>
+     * @param projectId owning project identity
+     * @return the project's environments
      */
     List<Environment> findAllByProject(ProjectId projectId);
 
     /**
-     * Returns the set of environment names defined in a project.
+     * Returns environment names defined in a project.
      *
-     * @param projectId the owning project identity
-     * @return environment names for the project
-     *
-     * <pre>{@code
-     * Set<String> names = environments.findNamesByProjectId(projectId);
-     * }</pre>
+     * @param projectId owning project identity
+     * @return environment names
      */
     Set<String> findNamesByProjectId(ProjectId projectId);
 
     /**
-     * Deletes an environment by its identity.
+     * Deletes an environment by identity.
      *
-     * @param id the environment identity
-     *
-     * <pre>{@code
-     * environments.deleteById(envId);
-     * }</pre>
+     * @param id environment identity
      */
     void deleteById(EnvironmentId id);
 
     /**
-     * Checks whether any feature toggle in the given project references the environment name.
+     * Checks if any toggle references this environment.
      *
-     * @param name      the environment name to check
-     * @param projectId the owning project identity
-     * @return {@code true} if at least one toggle uses this environment in the project
-     *
-     * <pre>{@code
-     * if (environments.isEnvironmentInUse("production", projectId)) {
-     *     throw new EnvironmentInUseException("production");
-     * }
-     * }</pre>
+     * @param name      environment name to check
+     * @param projectId owning project identity
+     * @return {@code true} if at least one toggle uses it
      */
     boolean isEnvironmentInUse(String name, ProjectId projectId);
 }

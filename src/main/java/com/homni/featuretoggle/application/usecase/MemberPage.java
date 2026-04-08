@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.domain.model.ProjectMembership;
@@ -6,16 +15,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A page of project memberships with pagination metadata.
+ * Paginated project memberships.
  *
- * @param items         the memberships on this page
- * @param totalElements total count across all pages
+ * @param items         memberships on this page
+ * @param totalElements total count
  */
 public record MemberPage(List<ProjectMembership> items, long totalElements) {
 
-    /**
-     * Creates a page with a defensive copy of the items list.
-     */
+    /** Defensive copy of items. */
     public MemberPage {
         Objects.requireNonNull(items, "items must not be null");
         items = List.copyOf(items);

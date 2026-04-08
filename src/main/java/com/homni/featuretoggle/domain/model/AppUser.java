@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.InvalidStateException;
@@ -9,7 +18,6 @@ import java.util.Optional;
 
 /**
  * Platform user with OIDC authentication and platform-level role.
- * Access to individual projects is determined via {@link ProjectMembership}.
  */
 public final class AppUser {
 
@@ -24,12 +32,12 @@ public final class AppUser {
     private Instant updatedAt;
 
     /**
-     * Creates a new active user with an OIDC subject (USER by default).
+     * Creates a new active user with OIDC subject (USER role).
      *
      * @param oidcSubject the OIDC subject identifier
-     * @param email       the user's email address (will be validated)
-     * @param name        the display name, may be {@code null}
-     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if email format is invalid
+     * @param email       the email address
+     * @param name        optional display name
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if email is invalid
      */
     public AppUser(String oidcSubject, String email, String name) {
         Objects.requireNonNull(oidcSubject, "oidcSubject must not be null");
@@ -44,12 +52,12 @@ public final class AppUser {
     }
 
     /**
-     * Creates a pre-provisioned user without an OIDC subject.
+     * Creates a pre-provisioned user without OIDC subject.
      *
-     * @param email        the user's email address (will be validated)
-     * @param name         the display name, may be {@code null}
+     * @param email        the email address
+     * @param name         optional display name
      * @param platformRole the platform role
-     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if email format is invalid
+     * @throws com.homni.featuretoggle.domain.exception.DomainValidationException if email is invalid
      */
     public AppUser(String email, String name, PlatformRole platformRole) {
         this.id = new UserId();
@@ -63,16 +71,16 @@ public final class AppUser {
     }
 
     /**
-     * Restores an existing user from persistent storage.
+     * Reconstitutes from storage.
      *
      * @param id           the user identity
-     * @param oidcSubject  the OIDC subject, may be {@code null}
+     * @param oidcSubject  OIDC subject, or {@code null}
      * @param email        the validated email
-     * @param name         the display name, may be {@code null}
+     * @param name         optional display name
      * @param platformRole the platform role
-     * @param active       whether the user is active
-     * @param createdAt    the creation timestamp
-     * @param updatedAt    the last modification timestamp, may be {@code null}
+     * @param active       active flag
+     * @param createdAt    creation timestamp
+     * @param updatedAt    last modification timestamp
      */
     public AppUser(UserId id, String oidcSubject, Email email, String name,
                    PlatformRole platformRole, boolean active,
@@ -88,13 +96,12 @@ public final class AppUser {
     }
 
     /**
-     * Determines access level for this user to a project.
-     * PLATFORM_ADMIN gets full access; USER gets role-based access via membership.
+     * Resolves access level for a project.
      *
      * @param projectId  the target project
-     * @param membership the project membership, if any
-     * @return the access level
-     * @throws NotProjectMemberException if USER is not a member of the project
+     * @param membership the membership, if any
+     * @return the resolved access level
+     * @throws NotProjectMemberException if USER has no membership
      */
     public ProjectAccess accessFor(ProjectId projectId,
                                    Optional<ProjectMembership> membership) {
@@ -107,9 +114,9 @@ public final class AppUser {
     }
 
     /**
-     * Promotes this user to PLATFORM_ADMIN.
+     * Promotes to PLATFORM_ADMIN.
      *
-     * @throws InvalidStateException if already a platform admin
+     * @throws InvalidStateException if already admin
      */
     public void promoteToPlatformAdmin() {
         if (this.platformRole == PlatformRole.PLATFORM_ADMIN) {
@@ -120,7 +127,7 @@ public final class AppUser {
     }
 
     /**
-     * Demotes this user to USER.
+     * Demotes to USER.
      *
      * @throws InvalidStateException if already a regular user
      */
@@ -133,9 +140,9 @@ public final class AppUser {
     }
 
     /**
-     * Disables this user, preventing authentication.
+     * Disables this user.
      *
-     * @throws InvalidStateException if the user is already disabled
+     * @throws InvalidStateException if already disabled
      */
     public void disable() {
         if (!this.active) {
@@ -146,9 +153,9 @@ public final class AppUser {
     }
 
     /**
-     * Activates this user, allowing authentication.
+     * Activates this user.
      *
-     * @throws InvalidStateException if the user is already active
+     * @throws InvalidStateException if already active
      */
     public void activate() {
         if (this.active) {
@@ -159,10 +166,10 @@ public final class AppUser {
     }
 
     /**
-     * Binds an OIDC subject identifier to this user.
+     * Binds an OIDC subject to this user.
      *
-     * @param oidcSubject the OIDC subject to bind
-     * @throws InvalidStateException if an OIDC subject is already bound
+     * @param oidcSubject the OIDC subject
+     * @throws InvalidStateException if already bound
      */
     public void bindOidcSubject(String oidcSubject) {
         if (this.oidcSubject != null) {
@@ -173,34 +180,34 @@ public final class AppUser {
     }
 
     /**
-     * Checks whether this user is a platform administrator.
+     * Whether this user is a platform admin.
      *
-     * @return {@code true} if the user is a platform admin
+     * @return {@code true} if platform admin
      */
     public boolean isPlatformAdmin() {
         return this.platformRole == PlatformRole.PLATFORM_ADMIN;
     }
 
     /**
-     * Checks whether this user is allowed to authenticate.
+     * Whether this user can authenticate.
      *
-     * @return {@code true} if the user is active
+     * @return {@code true} if active
      */
     public boolean canAuthenticate() {
         return this.active;
     }
 
     /**
-     * Checks whether this user can have an OIDC subject bound.
+     * Whether an OIDC subject can be bound.
      *
-     * @return {@code true} if no OIDC subject is currently bound
+     * @return {@code true} if no subject bound
      */
     public boolean canBindOidc() {
         return this.oidcSubject == null;
     }
 
     /**
-     * Returns the platform role of this user.
+     * Current platform role.
      *
      * @return the platform role
      */
@@ -209,36 +216,36 @@ public final class AppUser {
     }
 
     /**
-     * Returns the OIDC subject identifier, if bound.
+     * OIDC subject identifier.
      *
-     * @return the OIDC subject, or empty if not yet bound
+     * @return the subject, or empty
      */
     public Optional<String> oidcSubject() {
         return Optional.ofNullable(this.oidcSubject);
     }
 
     /**
-     * Returns the display name of this user.
+     * User's display name.
      *
-     * @return the user's name, or empty if not set
+     * @return the name, or empty
      */
     public Optional<String> displayName() {
         return Optional.ofNullable(this.name);
     }
 
     /**
-     * Indicates whether this user account is active.
+     * Whether this user is active.
      *
-     * @return {@code true} if the user is active
+     * @return {@code true} if active
      */
     public boolean isActive() {
         return this.active;
     }
 
     /**
-     * Returns the instant when this user was last modified.
+     * Last modification timestamp.
      *
-     * @return the last modification timestamp, or empty if never modified
+     * @return the timestamp, or empty if never modified
      */
     public Optional<Instant> lastModifiedAt() {
         return Optional.ofNullable(this.updatedAt);

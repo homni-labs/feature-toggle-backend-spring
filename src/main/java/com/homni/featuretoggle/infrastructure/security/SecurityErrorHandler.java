@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +27,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 
+/**
+ * Writes JSON error responses for authentication and authorization failures.
+ */
 @Component
 public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
@@ -27,6 +39,14 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
         this.mapper = mapper;
     }
 
+    /**
+     * Handles unauthenticated requests (401).
+     *
+     * @param request       the HTTP request
+     * @param response      the HTTP response
+     * @param authException the authentication failure
+     * @throws IOException if writing the response fails
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
@@ -44,6 +64,14 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
         writeError(response, HttpServletResponse.SC_UNAUTHORIZED, code, message);
     }
 
+    /**
+     * Handles access-denied requests (403).
+     *
+     * @param request                 the HTTP request
+     * @param response                the HTTP response
+     * @param accessDeniedException   the access denial
+     * @throws IOException if writing the response fails
+     */
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {

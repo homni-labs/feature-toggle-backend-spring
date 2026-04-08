@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 /**
@@ -6,9 +15,9 @@ package com.homni.featuretoggle.domain.exception;
 public abstract class DomainConflictException extends DomainException {
 
     /**
-     * Creates a conflict exception with the given message.
+     * Creates a conflict exception.
      *
-     * @param message description of the conflict
+     * @param message conflict description
      */
     protected DomainConflictException(String message) {
         super(message);

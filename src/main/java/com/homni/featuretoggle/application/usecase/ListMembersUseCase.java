@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -17,10 +26,8 @@ public final class ListMembersUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a list-members use case.
-     *
-     * @param memberships  the membership persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param memberships  membership persistence port
+     * @param callerAccess caller's project access resolver
      */
     public ListMembersUseCase(ProjectMembershipRepositoryPort memberships,
                                CallerProjectAccessPort callerAccess) {
@@ -29,17 +36,13 @@ public final class ListMembersUseCase {
     }
 
     /**
-     * Returns a paginated list of members for the specified project.
+     * Lists members of a project.
      *
-     * @param projectId the project identity
-     * @param page      the zero-based page number
-     * @param size      the page size
-     * @return a page of memberships with total count
+     * @param projectId project identity
+     * @param page      zero-based page number
+     * @param size      page size
+     * @return a page of memberships
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks READ_TOGGLES
-     *
-     * <pre>{@code
-     * MemberPage page = listMembers.execute(projectId, 0, 20);
-     * }</pre>
      */
     public MemberPage execute(ProjectId projectId, int page, int size) {
         callerAccess.resolve(projectId).ensure(Permission.READ_TOGGLES);

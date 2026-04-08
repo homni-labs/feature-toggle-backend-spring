@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.exception;
 
 /**
@@ -6,8 +15,10 @@ package com.homni.featuretoggle.domain.exception;
 public final class AlreadyExistsException extends DomainConflictException {
 
     /**
-     * @param entity     the entity type name (e.g. "Project", "Toggle", "Membership")
-     * @param identifier the conflicting identifier value
+     * Creates exception for a uniqueness violation.
+     *
+     * @param entity     the entity type name
+     * @param identifier the conflicting identifier
      */
     public AlreadyExistsException(String entity, String identifier) {
         super("%s '%s' already exists".formatted(entity, identifier));

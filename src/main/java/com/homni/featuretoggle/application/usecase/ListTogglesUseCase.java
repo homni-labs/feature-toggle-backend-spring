@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -9,7 +18,7 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 import java.util.List;
 
 /**
- * Lists feature toggles for a project with optional filtering and pagination.
+ * Lists feature toggles for a project with filtering and pagination.
  */
 public final class ListTogglesUseCase {
 
@@ -17,10 +26,8 @@ public final class ListTogglesUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a list-toggles use case.
-     *
-     * @param toggles      the toggle persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param toggles      toggle persistence port
+     * @param callerAccess caller's project access resolver
      */
     public ListTogglesUseCase(FeatureToggleRepositoryPort toggles,
                                CallerProjectAccessPort callerAccess) {
@@ -29,19 +36,15 @@ public final class ListTogglesUseCase {
     }
 
     /**
-     * Lists feature toggles within a project, filtered by optional criteria.
+     * Lists toggles in a project with optional filters.
      *
-     * @param projectId   the owning project identity
-     * @param enabled     filter by enabled status, or {@code null} for all
-     * @param environment filter by environment name, or {@code null} for all
-     * @param page        the zero-based page number
-     * @param size        the maximum number of items per page
+     * @param projectId   owning project identity
+     * @param enabled     enabled filter, or {@code null}
+     * @param environment environment filter, or {@code null}
+     * @param page        zero-based page number
+     * @param size        page size
      * @return a page of matching toggles
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks READ_TOGGLES
-     *
-     * <pre>{@code
-     * TogglePage page = listToggles.execute(projectId, true, "PRODUCTION", 0, 20);
-     * }</pre>
      */
     public TogglePage execute(ProjectId projectId, Boolean enabled, String environment,
                               int page, int size) {

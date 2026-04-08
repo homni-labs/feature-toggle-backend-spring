@@ -1,17 +1,18 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import com.homni.featuretoggle.domain.exception.DomainValidationException;
 
 /**
- * Unique short slug identifying a project, used in URLs and configurations.
- *
- * <p>Must be 2-50 uppercase alphanumeric characters, starting with a letter.
- * Hyphens and underscores are allowed. The value is normalized to uppercase.</p>
- *
- * <pre>{@code
- * ProjectSlug slug = new ProjectSlug("my-project");    // stored as "MY-PROJECT"
- * ProjectSlug slug2 = new ProjectSlug("EXAMPLE_ONE_1"); // valid
- * }</pre>
+ * Unique project slug (2-50 uppercase alphanumeric, hyphens, underscores).
  *
  * @param value the normalized uppercase slug
  */
@@ -20,10 +21,9 @@ public record ProjectSlug(String value) {
     private static final String SLUG_PATTERN = "^[A-Z][A-Z0-9_-]*$";
 
     /**
-     * Validates and normalizes the project slug.
+     * Validates and normalizes to uppercase.
      *
-     * @throws DomainValidationException if the slug is blank, too short, too long,
-     *                                   or does not match the required pattern
+     * @throws DomainValidationException if slug is invalid
      */
     public ProjectSlug {
         if (value == null || value.isBlank()) {

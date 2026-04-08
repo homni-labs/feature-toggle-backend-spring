@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -8,7 +17,7 @@ import com.homni.featuretoggle.domain.model.FeatureToggleId;
 import com.homni.featuretoggle.domain.model.Permission;
 
 /**
- * Finds a single feature toggle by its identity.
+ * Finds a feature toggle by identity.
  */
 public final class FindToggleUseCase {
 
@@ -16,10 +25,8 @@ public final class FindToggleUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a find-toggle use case.
-     *
-     * @param toggles      the toggle persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param toggles      toggle persistence port
+     * @param callerAccess caller's project access resolver
      */
     public FindToggleUseCase(FeatureToggleRepositoryPort toggles,
                               CallerProjectAccessPort callerAccess) {
@@ -28,16 +35,12 @@ public final class FindToggleUseCase {
     }
 
     /**
-     * Finds a feature toggle by its identity and verifies caller read access.
+     * Finds a toggle and verifies read access.
      *
-     * @param id the toggle identity
+     * @param id toggle identity
      * @return the found feature toggle
-     * @throws EntityNotFoundException if no toggle exists with the given identity
+     * @throws EntityNotFoundException if the toggle does not exist
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks READ_TOGGLES
-     *
-     * <pre>{@code
-     * FeatureToggle toggle = findToggle.execute(toggleId);
-     * }</pre>
      */
     public FeatureToggle execute(FeatureToggleId id) {
         FeatureToggle toggle = toggles.findById(id)

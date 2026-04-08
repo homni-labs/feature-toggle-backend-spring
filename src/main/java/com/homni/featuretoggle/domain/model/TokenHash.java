@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.domain.model;
 
 import java.nio.charset.StandardCharsets;
@@ -14,7 +23,7 @@ public final class TokenHash {
     public final String value;
 
     /**
-     * Wraps a hex-encoded SHA-256 hash value (e.g. from database).
+     * Wraps a hex-encoded SHA-256 hash.
      *
      * @param value the hex-encoded hash
      */
@@ -23,10 +32,10 @@ public final class TokenHash {
     }
 
     /**
-     * Computes a SHA-256 hash from a raw token string.
+     * Computes SHA-256 hash from a raw token.
      *
-     * @param rawToken the raw token to hash
-     * @return the computed token hash
+     * @param rawToken the raw token
+     * @return the computed hash
      */
     public static TokenHash from(String rawToken) {
         try {

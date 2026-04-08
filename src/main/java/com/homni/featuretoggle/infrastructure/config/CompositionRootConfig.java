@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.infrastructure.config;
 
 import com.homni.featuretoggle.application.port.out.ApiKeyRepositoryPort;
@@ -45,12 +54,12 @@ class CompositionRootConfig {
     // --- Toggle use-cases ---
 
     /**
-     * Creates a toggle within a project after validating environments.
+     * Wires the CreateToggleUseCase.
      *
-     * @param toggles      the toggle persistence port
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param toggles      toggle persistence port
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -62,10 +71,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Finds a single toggle by identity, verifying read access.
+     * Wires the FindToggleUseCase.
      *
-     * @param toggles      the toggle persistence port
-     * @param callerAccess the caller project access port
+     * @param toggles      toggle persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -75,10 +84,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists toggles for a project with filtering and pagination.
+     * Wires the ListTogglesUseCase.
      *
-     * @param toggles      the toggle persistence port
-     * @param callerAccess the caller project access port
+     * @param toggles      toggle persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -88,12 +97,12 @@ class CompositionRootConfig {
     }
 
     /**
-     * Updates a toggle's mutable fields.
+     * Wires the UpdateToggleUseCase.
      *
-     * @param toggles      the toggle persistence port
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param toggles      toggle persistence port
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -105,11 +114,11 @@ class CompositionRootConfig {
     }
 
     /**
-     * Deletes a toggle from a project.
+     * Wires the DeleteToggleUseCase.
      *
-     * @param toggles      the toggle persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param toggles      toggle persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -122,9 +131,9 @@ class CompositionRootConfig {
     // --- Project use-cases ---
 
     /**
-     * Creates a new project.
+     * Wires the CreateProjectUseCase.
      *
-     * @param projects the project persistence port
+     * @param projects project persistence port
      * @return the wired use case
      */
     @Bean
@@ -133,10 +142,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists projects visible to the calling user.
+     * Wires the ListProjectsUseCase.
      *
-     * @param projects   the project persistence port
-     * @param callerPort provides the authenticated caller
+     * @param projects   project persistence port
+     * @param callerPort caller port
      * @return the wired use case
      */
     @Bean
@@ -146,10 +155,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Updates a project's mutable fields.
+     * Wires the UpdateProjectUseCase.
      *
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -161,10 +170,10 @@ class CompositionRootConfig {
     // --- User use-cases ---
 
     /**
-     * Resolves or creates a user during OIDC login.
+     * Wires the FindOrCreateUserUseCase.
      *
-     * @param users             the user persistence port
-     * @param defaultAdminEmail the default admin email from configuration
+     * @param users             user persistence port
+     * @param defaultAdminEmail default admin email
      * @return the wired use case
      */
     @Bean
@@ -175,9 +184,9 @@ class CompositionRootConfig {
     }
 
     /**
-     * Returns the currently authenticated user.
+     * Wires the GetCurrentUserUseCase.
      *
-     * @param callerPort provides the authenticated caller
+     * @param callerPort caller port
      * @return the wired use case
      */
     @Bean
@@ -186,9 +195,9 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists all platform users with pagination.
+     * Wires the ListUsersUseCase.
      *
-     * @param users the user persistence port
+     * @param users user persistence port
      * @return the wired use case
      */
     @Bean
@@ -197,9 +206,9 @@ class CompositionRootConfig {
     }
 
     /**
-     * Searches users by email or name substring.
+     * Wires the SearchUsersUseCase.
      *
-     * @param users the user persistence port
+     * @param users user persistence port
      * @return the wired use case
      */
     @Bean
@@ -208,10 +217,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Updates a user's platform role and active status.
+     * Wires the UpdateUserUseCase.
      *
-     * @param users      the user persistence port
-     * @param callerPort provides the authenticated caller
+     * @param users      user persistence port
+     * @param callerPort caller port
      * @return the wired use case
      */
     @Bean
@@ -222,11 +231,11 @@ class CompositionRootConfig {
     // --- API Key use-cases ---
 
     /**
-     * Issues a new API key bound to a project.
+     * Wires the IssueApiKeyUseCase.
      *
-     * @param apiKeys      the API key persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param apiKeys      API key persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -237,10 +246,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists API keys for a project with pagination.
+     * Wires the ListApiKeysUseCase.
      *
-     * @param apiKeys      the API key persistence port
-     * @param callerAccess the caller project access port
+     * @param apiKeys      API key persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -250,11 +259,11 @@ class CompositionRootConfig {
     }
 
     /**
-     * Revokes an API key within a project.
+     * Wires the RevokeApiKeyUseCase.
      *
-     * @param apiKeys      the API key persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param apiKeys      API key persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -267,11 +276,11 @@ class CompositionRootConfig {
     // --- Environment use-cases ---
 
     /**
-     * Creates a new environment within a project.
+     * Wires the CreateEnvironmentUseCase.
      *
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -282,10 +291,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists all environments for a project.
+     * Wires the ListEnvironmentsUseCase.
      *
-     * @param environments the environment persistence port
-     * @param callerAccess the caller project access port
+     * @param environments environment persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -295,11 +304,11 @@ class CompositionRootConfig {
     }
 
     /**
-     * Deletes an environment from a project.
+     * Wires the DeleteEnvironmentUseCase.
      *
-     * @param environments the environment persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param environments environment persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -312,12 +321,12 @@ class CompositionRootConfig {
     // --- Member use-cases ---
 
     /**
-     * Adds a user to a project or updates their role (upsert).
+     * Wires the UpsertMemberUseCase.
      *
-     * @param memberships  the membership persistence port
-     * @param users        the user persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param memberships  membership persistence port
+     * @param users        user persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -329,10 +338,10 @@ class CompositionRootConfig {
     }
 
     /**
-     * Lists project members with pagination.
+     * Wires the ListMembersUseCase.
      *
-     * @param memberships  the membership persistence port
-     * @param callerAccess the caller project access port
+     * @param memberships  membership persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -342,11 +351,11 @@ class CompositionRootConfig {
     }
 
     /**
-     * Removes a member from a project.
+     * Wires the RemoveMemberUseCase.
      *
-     * @param memberships  the membership persistence port
-     * @param projects     the project persistence port
-     * @param callerAccess the caller project access port
+     * @param memberships  membership persistence port
+     * @param projects     project persistence port
+     * @param callerAccess caller project access port
      * @return the wired use case
      */
     @Bean
@@ -359,9 +368,9 @@ class CompositionRootConfig {
     // --- Access resolution ---
 
     /**
-     * Resolves a user's access level for a specific project.
+     * Wires the ResolveProjectAccessUseCase.
      *
-     * @param memberships the membership persistence port
+     * @param memberships membership persistence port
      * @return the wired use case
      */
     @Bean

@@ -1,3 +1,12 @@
+/*
+ * (\(\
+ * ( -.-)    I'm watching you.
+ * o_(")(")  Don't write crappy code.
+ *
+ * Copyright (c) Homni Labs
+ * Licensed under the MIT License
+ */
+
 package com.homni.featuretoggle.application.usecase;
 
 import com.homni.featuretoggle.application.port.out.CallerProjectAccessPort;
@@ -9,7 +18,7 @@ import com.homni.featuretoggle.domain.model.ProjectId;
 import java.util.List;
 
 /**
- * Lists all deployment environments belonging to a project.
+ * Lists environments for a project.
  */
 public final class ListEnvironmentsUseCase {
 
@@ -17,10 +26,8 @@ public final class ListEnvironmentsUseCase {
     private final CallerProjectAccessPort callerAccess;
 
     /**
-     * Creates a list-environments use case.
-     *
-     * @param environments the environment persistence port
-     * @param callerAccess resolves the caller's project access
+     * @param environments environment persistence port
+     * @param callerAccess caller's project access resolver
      */
     public ListEnvironmentsUseCase(EnvironmentRepositoryPort environments,
                                     CallerProjectAccessPort callerAccess) {
@@ -29,15 +36,11 @@ public final class ListEnvironmentsUseCase {
     }
 
     /**
-     * Lists all environments for the specified project.
+     * Lists all environments in a project.
      *
-     * @param projectId the owning project identity
-     * @return the list of environments
+     * @param projectId owning project identity
+     * @return the environments
      * @throws com.homni.featuretoggle.domain.exception.InsufficientPermissionException if access lacks READ_TOGGLES
-     *
-     * <pre>{@code
-     * List<Environment> envs = listEnvironments.execute(projectId);
-     * }</pre>
      */
     public List<Environment> execute(ProjectId projectId) {
         callerAccess.resolve(projectId).ensure(Permission.READ_TOGGLES);
