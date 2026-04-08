@@ -1,13 +1,29 @@
-name: Publish Docker image
+name: Docker
 
 on:
   push:
+    branches:
+      - '**'
     tags:
-      - '*'
+      - 'v*'
 
 jobs:
-  publish:
+  build-image:
+    name: Build image
     runs-on: ubuntu-latest
+    if: github.ref_type == 'branch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
     steps:
       - uses: actions/checkout@v4
 
