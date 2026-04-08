@@ -1,5 +1,5 @@
 <div align="center">
-<img src="assets/feature_toggle_logo.jpeg" width="600" alt="Feature Toggle Logo">
+<img src="assets/feature_toggle_logo_spring.jpeg" width="600" alt="Feature Toggle Logo">
 
 # Homni Feature Toggle Backend
 
